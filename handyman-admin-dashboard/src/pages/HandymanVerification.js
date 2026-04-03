@@ -59,46 +59,57 @@ function HandymanVerification() {
     const db = getDatabase();
     const idField = "idApprovedStatus";
     const certField = "certificateApprovedStatus";
+  try {
+      // Normalize status (store lowercase consistently)
+      const normalized = (status || "").toLowerCase();
 
-    // Update the document status
-    await update(ref(db, `Handyman/${handyman.handymanId}`), {
-      [type === "identity" ? idField : certField]: status,
-    });
+      // Update the document status
+      const updatePayload = { [type === "identity" ? idField : certField]: normalized };
+      await update(ref(db, `Handyman/${handyman.handymanId}`), updatePayload);
 
-    // Get latest values
-    const currentHandyman =
-      data.find((x) => x.handymanId === handyman.handymanId) || {};
+      // Get latest values
+      const currentHandyman =
+        data.find((x) => x.handymanId === handyman.handymanId) || {};
 
-    // Work with updated statuses
-    const idStatus =
-      type === "identity" ? status : currentHandyman[idField] || "pending";
-    const certStatus =
-      type === "certificates"
-        ? status
-        : currentHandyman[certField] || "pending";
-    const manual = currentHandyman.verificationStatusManual;
+      // Work with updated statuses
+      const idStatus =
+        type === "identity" ? normalized : currentHandyman[idField] || "pending";
+      const certStatus =
+        type === "certificates"
+          ? normalized
+          : currentHandyman[certField] || "pending";
+      const manual = currentHandyman.verificationStatusManual;
 
-    // Only auto-update if manual override is false/not set
-    if (!manual) {
-      let newVerificationStatus = "pending";
-      if (idStatus === "approved" && certStatus === "approved") {
-        newVerificationStatus = "approved";
-      } else if (idStatus === "declined" || certStatus === "declined") {
-        newVerificationStatus = "declined";
+      // Only auto-update if manual override is false/not set
+        if (!manual) {
+        let newVerificationStatus = "pending";
+        if (idStatus === "approved" && certStatus === "approved") {
+          newVerificationStatus = "approved";
+        } else if (idStatus === "declined" || certStatus === "declined") {
+          newVerificationStatus = "declined";
+        }
+        const payload2 = { verificationStatus: newVerificationStatus };
+        await update(ref(db, `Handyman/${handyman.handymanId}`), payload2);
       }
-      await update(ref(db, `Handyman/${handyman.handymanId}`), {
-        verificationStatus: newVerificationStatus,
-      });
-    }
 
-    setNotification({
-      show: true,
-      message: `Document ${
-        type === "identity" ? "ID Card" : "Certificate"
-      } ${status}.`,
-      variant: status === "approved" ? "success" : "danger",
-    });
-    setTimeout(() => setNotification({ show: false }), 2500);
+      setNotification({
+        show: true,
+        message: `Document ${
+          type === "identity" ? "ID Card" : "Certificate"
+        } ${normalized}.`,
+        variant: normalized === "approved" ? "success" : "danger",
+      });
+      setTimeout(() => setNotification({ show: false }), 2500);
+    } catch (err) {
+      console.error("Error updating document approval:", err);
+      // error logged to console and shown in UI
+      setNotification({
+        show: true,
+        message: `Failed to update document: ${err?.message || err}`,
+        variant: "danger",
+      });
+      setTimeout(() => setNotification({ show: false }), 4000);
+    }
   };
 
   // Optional: When creating a new handyman, use this function!
@@ -331,17 +342,19 @@ function HandymanVerification() {
   // Handle dropdown click (shows confirm modal, checks warning)
   const handleStatusDropdownChange = (item, newStatus) => {
     let warning = "";
+    // Normalize and compare in lowercase to match stored values
+    const normalized = (newStatus || "").toString().toLowerCase();
     if (
-      newStatus === "Approved" &&
-      (item.idApprovedStatus !== "Approved" ||
-        item.certificateApprovedStatus !== "Approved")
+      normalized === "approved" &&
+      (String(item.idApprovedStatus || "").toLowerCase() !== "approved" ||
+        String(item.certificateApprovedStatus || "").toLowerCase() !== "approved")
     ) {
       warning =
         "You are setting this handyman to 'Approved' but not all required documents are approved. Are you sure you want to continue?";
     }
     setPendingStatusChange({
       handymanId: item.handymanId,
-      newStatus,
+      newStatus: normalized,
       warning,
     });
     setShowConfirmModal(true);
@@ -351,16 +364,29 @@ function HandymanVerification() {
   const handleConfirmStatusChange = async () => {
     const { handymanId, newStatus } = pendingStatusChange;
     const db = getDatabase();
-    await update(ref(db, `Handyman/${handymanId}`), {
-      verificationStatus: newStatus,
-      verificationStatusManual: true,
-    });
-    setShowConfirmModal(false);
-    setNotification({
-      show: true,
-      message: "Verification status updated manually.",
-      variant: "info",
-    });
+    const normalized = (newStatus || "").toString().toLowerCase();
+    try {
+      const payload = { verificationStatus: normalized, verificationStatusManual: true };
+      await update(ref(db, `Handyman/${handymanId}`), payload);
+      // success - no on-page DB log (removed)
+      setShowConfirmModal(false);
+      setNotification({
+        show: true,
+        message: `Verification status updated to ${capitalize(normalized)}.`,
+        variant: "success",
+      });
+      setTimeout(() => setNotification({ show: false }), 3000);
+    } catch (err) {
+      console.error("Error updating verification status:", err);
+      // error logged to console and shown in UI
+      setShowConfirmModal(false);
+      setNotification({
+        show: true,
+        message: `Failed to update verification status: ${err?.message || err}`,
+        variant: "danger",
+      });
+      setTimeout(() => setNotification({ show: false }), 4000);
+    }
   };
 
   const capitalize = (str) =>
@@ -372,6 +398,7 @@ function HandymanVerification() {
         currentUser={currentUser}
         pageTitle="Handyman Verification"
       />
+      
       {notification.show && (
         <div
           className={`alert alert-${notification.variant} text-center`}
