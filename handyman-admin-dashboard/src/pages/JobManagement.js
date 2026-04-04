@@ -14,7 +14,7 @@ import {
 import PaginationControls from "../components/PaginationControls";
 import StickyHeader from "../components/StickyHeader";
 import { database } from "../firebase";
-import { ref, onValue, update } from "firebase/database";
+import { ref, onValue, update, remove } from "firebase/database";
 import ConfirmModal from "../components/ConfirmModal";
 import ExportReportButton from "../components/ExportReportButton";
 import JOB_CATEGORIES from "../constants/jobCategories";
@@ -31,6 +31,8 @@ function JobManagement() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [jobToDelete, setJobToDelete] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -118,6 +120,31 @@ function JobManagement() {
     setEditedJob({ ...job });
     setIsEditMode(false);
     setShowModal(true);
+  };
+
+  const handleDeleteClick = (job) => {
+    setJobToDelete(job);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!jobToDelete) return;
+    const jobId = jobToDelete.jobId;
+    // Remove from both paths to handle apps using either path
+    const dummyRef = ref(database, `DummyJob/${jobId}`);
+    const jobRef = ref(database, `Job/${jobId}`);
+    Promise.all([remove(dummyRef).catch((e) => e), remove(jobRef).catch((e) => e)])
+      .then(() => {
+        setShowDeleteConfirm(false);
+        setJobToDelete(null);
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 1500);
+      })
+      .catch((err) => {
+        console.error("Error deleting job:", err);
+        setShowDeleteConfirm(false);
+        setJobToDelete(null);
+      });
   };
 
   const handleReset = () => {
@@ -238,6 +265,22 @@ function JobManagement() {
               }}
             />
           </InputGroup>
+          <div className="d-flex align-items-center gap-2">
+            <Form.Label className="mb-0">Show</Form.Label>
+            <Form.Control
+              type="number"
+              min={1}
+              max={100}
+              value={entriesPerPage}
+              onChange={(e) => {
+                const v = Number(e.target.value) || 1;
+                setEntriesPerPage(v);
+                setCurrentPage(1);
+              }}
+              style={{ width: "90px" }}
+            />
+            <span className="ms-1">entries per page</span>
+          </div>
           {/* Status Filter */}
           <div className="d-flex align-items-center gap-2">
             <Form.Label className="mb-0">Status:</Form.Label>
@@ -369,6 +412,14 @@ function JobManagement() {
                   >
                     View
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    className="ms-2"
+                    onClick={() => handleDeleteClick(job)}
+                  >
+                    Delete
+                  </Button>
                 </td>
               </tr>
             ))
@@ -381,6 +432,15 @@ function JobManagement() {
           )}
         </tbody>
       </Table>
+
+      <PaginationControls
+        totalItems={filteredJobs.length}
+        entriesPerPage={entriesPerPage}
+        setEntriesPerPage={setEntriesPerPage}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        startIndex={startIndex}
+      />
 
       <Modal
         show={showModal}
@@ -433,6 +493,20 @@ function JobManagement() {
         body="Are you sure you want to save changes?"
         loading={isSaving}
         confirmText="Confirm"
+        cancelText="Cancel"
+      />
+      <ConfirmModal
+        show={showDeleteConfirm}
+        onHide={() => setShowDeleteConfirm(false)}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Delete"
+        body={
+          jobToDelete
+            ? `Are you sure you want to delete job ${jobToDelete.jobId.slice(0, 8)}...? This action cannot be undone.`
+            : "Are you sure you want to delete this job?"
+        }
+        loading={false}
+        confirmText="Delete"
         cancelText="Cancel"
       />
     </div>
