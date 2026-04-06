@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ref, set, push, onValue } from "firebase/database";
+import { ref, set, push, onValue, get, update, remove } from "firebase/database";
 import { database } from "../firebase";
 import mockAdmins from "../data/mockUsers"; // Ensure this file contains only admin users
 
@@ -111,6 +111,40 @@ function FirebaseTest() {
 
         <button className="btn btn-warning" onClick={handleUploadAdminUsers}>
           Upload Admin Users
+        </button>
+        <button className="btn btn-outline-primary" onClick={async () => {
+          // Migrate any existing DummyJob entries into Job
+          try {
+            const snap = await get(ref(database, 'DummyJob'));
+            if (!snap || !snap.exists()) {
+              alert('No DummyJob data found.');
+              return;
+            }
+            const data = snap.val();
+            const jobs = Object.entries(data);
+            for (const [id, job] of jobs) {
+              await set(ref(database, `Job/${id}`), job);
+            }
+            alert('✅ Migration complete: DummyJob -> Job');
+          } catch (e) {
+            console.error('Migration failed:', e);
+            alert('Migration failed. See console.');
+          }
+        }}>
+          Migrate DummyJob → Job
+        </button>
+        <button className="btn btn-outline-danger" onClick={async () => {
+          // Delete DummyJob node after careful confirmation
+          if (!confirm('Delete entire DummyJob node? This cannot be undone.')) return;
+          try {
+            await remove(ref(database, 'DummyJob'));
+            alert('✅ DummyJob node deleted');
+          } catch (e) {
+            console.error('Failed to delete DummyJob:', e);
+            alert('Delete failed. See console.');
+          }
+        }}>
+          Delete DummyJob Node
         </button>
       </div>
 

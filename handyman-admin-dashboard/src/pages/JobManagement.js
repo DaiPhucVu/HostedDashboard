@@ -14,10 +14,12 @@ import {
 import PaginationControls from "../components/PaginationControls";
 import StickyHeader from "../components/StickyHeader";
 import { database } from "../firebase";
-import { ref, onValue, update, remove } from "firebase/database";
+import { ref, get, onValue, update, remove, push } from "firebase/database";
 import ConfirmModal from "../components/ConfirmModal";
 import ExportReportButton from "../components/ExportReportButton";
 import JOB_CATEGORIES from "../constants/jobCategories";
+import handymanMocks from "../data/handymanData";
+import userMocks from "../data/userData";
 
 function JobManagement() {
   const [jobData, setJobData] = useState([]);
@@ -33,13 +35,23 @@ function JobManagement() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assignCandidates, setAssignCandidates] = useState([]);
+  const [assignSelected, setAssignSelected] = useState(null);
+  const [assignNotes, setAssignNotes] = useState("");
+  const [assignPrice, setAssignPrice] = useState("");
+  const [assigningJob, setAssigningJob] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const [filterCategory, setFilterCategory] = useState("All");
+  // maps for id -> display name to show friendly names in tables
+  const [handymanMap, setHandymanMap] = useState({});
+  const [userMap, setUserMap] = useState({});
 
   useEffect(() => {
-    const jobRef = ref(database, "DummyJob");
+    // Use the canonical 'Job' node only (remove legacy DummyJob usage)
+    const jobRef = ref(database, "Job");
     const unsubscribe = onValue(jobRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -54,6 +66,79 @@ function JobManagement() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Load handyman and user maps for display names. Try DB first, fall back to mocks.
+  useEffect(() => {
+    const loadHandymen = async () => {
+      try {
+        const snap = await get(ref(database, "Handyman"));
+        if (snap && snap.exists()) {
+          const data = snap.val();
+          const map = {};
+          Object.entries(data).forEach(([id, h]) => {
+            const name = `${h.firstName || h.first_name || h.name || ""} ${h.lastName || h.last_name || ""}`.trim();
+            map[id] = name || h.displayName || h.email || id;
+          });
+          setHandymanMap(map);
+          return;
+        }
+      } catch (e) {
+        console.error("Error loading handymen for name map:", e);
+      }
+      // fallback to local mocks
+      const fallback = {};
+      handymanMocks.forEach((h) => {
+        fallback[h.handymanId] = `${h.firstName || ""} ${h.lastName || ""}`.trim();
+      });
+      setHandymanMap(fallback);
+    };
+
+    const loadUsers = async () => {
+      try {
+        // try several likely paths for users in the realtime DB
+        const paths = ["User", "Users", "user", "users"];
+        for (const p of paths) {
+          try {
+            const snap = await get(ref(database, p));
+            if (snap && snap.exists()) {
+              const data = snap.val();
+              const map = {};
+              Object.entries(data).forEach(([id, u]) => {
+                const name = `${u.firstName || u.first_name || u.name || ""} ${u.lastName || u.last_name || ""}`.trim();
+                map[id] = name || u.displayName || u.email || id;
+              });
+              setUserMap(map);
+              return;
+            }
+          } catch (e) {
+            // try next path
+          }
+        }
+      } catch (e) {
+        console.error("Error loading users for name map:", e);
+      }
+      // fallback to local mocks
+      const fallback = {};
+      userMocks.forEach((u) => {
+        fallback[u.userId] = `${u.firstName || ""} ${u.lastName || ""}`.trim();
+      });
+      setUserMap(fallback);
+    };
+
+    loadHandymen();
+    loadUsers();
+  }, []);
+
+  const getHandymanName = (id) => {
+    if (!id) return null;
+    return handymanMap[id] || id;
+  };
+
+  const getUserName = (id) => {
+    if (!id) return null;
+    // if createdBy is already a friendly string, prefer it
+    return userMap[id] || id;
+  };
 
   const validateForm = () => {
     const errors = {};
@@ -127,13 +212,83 @@ function JobManagement() {
     setShowDeleteConfirm(true);
   };
 
+  const handleAssignClick = (job) => {
+    setAssigningJob(job);
+    setAssignNotes("");
+    setAssignPrice("");
+    setAssignSelected(null);
+    setShowAssignModal(true);
+
+    // Attempt to read handymen from DB; fallback to local mock data
+    const handymanRef = ref(database, "Handyman");
+    get(handymanRef)
+      .then((snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const list = Object.keys(data).map((id) => ({ handymanId: id, ...data[id] }));
+          setAssignCandidates(list);
+        } else {
+          setAssignCandidates(handymanMocks);
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading handymen:", err);
+        setAssignCandidates(handymanMocks);
+      });
+  };
+
+  const handleConfirmAssign = async () => {
+    if (!assigningJob || !assignSelected) return;
+    const jobId = assigningJob.jobId;
+    const assignmentObj = {
+      assignedTo: assignSelected.handymanId,
+      assignedBy: currentUser?.email || currentUser?.id || "admin",
+      assignedAt: new Date().toISOString(),
+      assignmentNotes: assignNotes || "",
+      assignmentPrice: assignPrice || null,
+    };
+    const payload = {
+      assignment: assignmentObj,
+      // convenience top-level fields so UIs that read older paths can show status
+      assignedTo: assignmentObj.assignedTo,
+      assignedBy: assignmentObj.assignedBy,
+      assignedAt: assignmentObj.assignedAt,
+    };
+
+    try {
+      // Update only the canonical Job node
+      const jobRef = ref(database, `Job/${jobId}`);
+      await update(jobRef, payload);
+
+      // push history entry to Job/assignmentHistory
+      const historyRefJob = ref(database, `Job/${jobId}/assignmentHistory`);
+      const historyEntry = {
+        actorId: currentUser?.id || currentUser?.email || "admin",
+        action: "assign",
+        to: assignSelected.handymanId,
+        price: assignPrice || null,
+        notes: assignNotes || "",
+        ts: new Date().toISOString(),
+      };
+      await push(historyRefJob, historyEntry);
+
+      setShowAssignModal(false);
+      setAssigningJob(null);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1500);
+    } catch (err) {
+      console.error("Error assigning job:", err);
+      setShowAssignModal(false);
+      setAssigningJob(null);
+    }
+  };
+
   const handleConfirmDelete = () => {
     if (!jobToDelete) return;
     const jobId = jobToDelete.jobId;
-    // Remove from both paths to handle apps using either path
-    const dummyRef = ref(database, `DummyJob/${jobId}`);
+    // Remove only from canonical Job node
     const jobRef = ref(database, `Job/${jobId}`);
-    Promise.all([remove(dummyRef).catch((e) => e), remove(jobRef).catch((e) => e)])
+    remove(jobRef)
       .then(() => {
         setShowDeleteConfirm(false);
         setJobToDelete(null);
@@ -343,6 +498,8 @@ function JobManagement() {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Assigned</th>
+            <th>Assigned To</th>
             <th>Job Category</th>
             <th>Description</th>
             <th>Created By</th>
@@ -361,12 +518,18 @@ function JobManagement() {
             currentJobs.map((job) => (
               <tr key={job.jobId}>
                 <td>{job.jobId.slice(0, 8)}...</td>
+                <td>
+                  <Badge bg={job.assignedTo || job.assignment?.assignedTo ? 'success' : 'secondary'}>
+                    {job.assignedTo || job.assignment?.assignedTo ? 'Yes' : 'No'}
+                  </Badge>
+                </td>
+                <td>{getHandymanName(job.assignedTo || job.assignment?.assignedTo) || '—'}</td>
                 <td>{job.jobCat}</td>
                 <td>{job.jobDesc}</td>
                 <td>
                   <div className="d-flex align-items-center gap-2">
                     <i className="bi bi-person"></i>
-                    <span>{job.createdBy || "N/A"}</span>
+                    <span>{getUserName(job.customerId) || job.createdBy || "N/A"}</span>
                   </div>
                 </td>
                 <td>{job.jobLocation}</td>
@@ -405,27 +568,23 @@ function JobManagement() {
                     : "—"}
                 </td>
                 <td>
-                  <Button
-                    size="sm"
-                    variant="info"
-                    onClick={() => handleViewClick(job)}
-                  >
-                    View
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    className="ms-2"
-                    onClick={() => handleDeleteClick(job)}
-                  >
-                    Delete
-                  </Button>
+                  <div className="d-flex flex-wrap gap-2">
+                    <Button size="sm" variant="info" onClick={() => handleViewClick(job)}>
+                      View
+                    </Button>
+                    <Button size="sm" variant="primary" onClick={() => handleAssignClick(job)}>
+                      Assign
+                    </Button>
+                    <Button size="sm" variant="danger" onClick={() => handleDeleteClick(job)}>
+                      Delete
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="12" className="text-center text-muted">
+              <td colSpan="14" className="text-center text-muted">
                 No jobs found.
               </td>
             </tr>
@@ -509,6 +668,75 @@ function JobManagement() {
         confirmText="Delete"
         cancelText="Cancel"
       />
+
+      <Modal show={showAssignModal} onHide={() => setShowAssignModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Assign Job</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="mb-2">
+            <strong>Job:</strong> {assigningJob?.jobId} — {assigningJob?.jobDesc}
+          </div>
+          <Form.Group className="mb-2">
+            <Form.Label>Search / Filter</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Filter candidates (skill, name, area)"
+              onChange={(e) => {
+                const q = e.target.value.trim().toLowerCase();
+                if (!q) {
+                  // reload from DB fallback (one-time)
+                  const handymanRef = ref(database, "Handyman");
+                  get(handymanRef)
+                    .then((snapshot) => {
+                      const data = snapshot.val();
+                      if (data) setAssignCandidates(Object.keys(data).map((id) => ({ handymanId: id, ...data[id] })));
+                      else setAssignCandidates(handymanMocks);
+                    })
+                    .catch(() => setAssignCandidates(handymanMocks));
+                } else {
+                  setAssignCandidates((prev) => prev.filter((h) => {
+                    const name = `${h.firstName || ""} ${h.lastName || ""}`.toLowerCase();
+                    const skills = (h.skills || []).join(" ").toLowerCase();
+                    const area = (h.area || h.city || "").toLowerCase();
+                    return name.includes(q) || skills.includes(q) || area.includes(q);
+                  }));
+                }
+              }}
+            />
+          </Form.Group>
+
+          <div style={{ maxHeight: 300, overflowY: "auto" }}>
+            {assignCandidates.map((h) => (
+              <div key={h.handymanId} className={`p-2 border rounded mb-2 ${assignSelected?.handymanId === h.handymanId ? 'bg-light' : ''}`} onClick={() => setAssignSelected(h)} style={{ cursor: 'pointer' }}>
+                <div className="d-flex justify-content-between">
+                  <div>
+                    <strong>{h.firstName} {h.lastName}</strong>
+                    <div className="text-muted small">{h.city || h.area || ''}</div>
+                    <div className="text-muted small">Skills: {(h.skills || []).join(', ')}</div>
+                  </div>
+                  <div>
+                    {assignSelected?.handymanId === h.handymanId && <Badge bg="primary">Selected</Badge>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Form.Group className="mt-3 mb-2">
+            <Form.Label>Assignment Price (optional)</Form.Label>
+            <Form.Control type="number" value={assignPrice} onChange={(e) => setAssignPrice(e.target.value)} />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>Notes (optional)</Form.Label>
+            <Form.Control as="textarea" rows={3} value={assignNotes} onChange={(e) => setAssignNotes(e.target.value)} />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowAssignModal(false)}>Cancel</Button>
+          <Button variant="primary" onClick={handleConfirmAssign} disabled={!assignSelected}>Assign</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
