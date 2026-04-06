@@ -1,14 +1,7 @@
 // Add Close button for all filter and search bar
 
 import React, { useState, useEffect } from "react";
-import {
-  Button,
-  Form,
-  Badge,
-  InputGroup,
-  Dropdown,
-  Modal,
-} from "react-bootstrap";
+import { Button, Form, Badge, InputGroup, Dropdown, Modal } from "react-bootstrap";
 import { database } from "../firebase";
 import { ref, onValue, update } from "firebase/database";
 
@@ -40,6 +33,7 @@ function UserVerification() {
   const [idImageUrl, setIdImageUrl] = useState("");
   const [modalUser, setModalUser] = useState(null);
 
+  
   const handleViewIdCard = (user) => {
     setIdImageUrl(user.photoIdCard);
     setModalUser(user);
@@ -145,9 +139,10 @@ function UserVerification() {
   };
 
   const getDerivedStatus = (item) => {
-    if (item.status === "Suspected") return  item.status ||"Suspected";
-    if (item.isPhoneVerified === "fail") return item.status || "Failed";
-  return item.status || "Pending";
+    if (item.status === "Suspected") return "Suspected";
+    if (item.isPhoneVerified === "fail") return "Failed";
+    if (item.isPhoneVerified === true) return "Verified";
+    return "Pending";
   };
 
   const filteredData = data.filter((item) => {
@@ -172,27 +167,26 @@ function UserVerification() {
   });
 
   // --- NEW: Handler for changing status via dropdown ---
-const handleStatusDropdownChange = (user, newStatus) => {
-  if ((user.status || "Pending") === newStatus) return;
+  const handleStatusDropdownChange = (user, newStatus) => {
+    if (getDerivedStatus(user) === newStatus) return; // do nothing if already this status
 
-  openConfirm(
-    "Change User Status",
-    `Are you sure you want to change ${user.firstName}'s status to "${newStatus}"?`,
-    () => {
-      const userRef = ref(database, `User/${user.userId}`);
-      update(userRef, {
-        status: newStatus,
-        lastUpdatedBy: {
-          adminEmail: currentUser.email,
-          updatedAt: new Date().toISOString(),
-          changeType: "status",
-        },
-      });
-      setShowConfirm(false);
-    }
-  );
-};
-
+    openConfirm(
+      "Change User Status",
+      `Are you sure you want to change ${user.firstName}'s status to "${newStatus}"?`,
+      () => {
+        const userRef = ref(database, `User/${user.userId}`);
+        update(userRef, {
+          status: newStatus,
+          lastUpdatedBy: {
+            adminEmail: currentUser.email,
+            updatedAt: new Date().toISOString(),
+            changeType: "status",
+          },
+        });
+        setShowConfirm(false);
+      }
+    );
+  };
 
   const startIndex = (currentPage - 1) * entriesPerPage;
   const currentData = filteredData.slice(
@@ -224,19 +218,8 @@ const handleStatusDropdownChange = (user, newStatus) => {
           <option value="Pending">Pending</option>
           <option value="Suspected">Suspected</option>
         </Form.Select>
-
-        {statusFilter !== "All" && (
-          <Button
-            variant="outline-danger"
-            size="sm"
-            onClick={() => setStatusFilter("All")}
-          >
-            <i className="bi bi-x"></i>
-          </Button>
-        )}
       </div>
 
-      {/* Search Bar */}
       <div className="d-flex justify-content-around align-items-center mb-3 flex-wrap gap-3">
         <div className="d-flex align-items-center gap-4 flex-grow-1">
           <InputGroup style={{ width: "40%" }}>
@@ -248,15 +231,6 @@ const handleStatusDropdownChange = (user, newStatus) => {
                 setCurrentPage(1);
               }}
             />
-            {searchTerm && (
-              <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={() => setSearchTerm("")}
-              >
-                <i className="bi bi-x"></i>
-              </Button>
-            )}
           </InputGroup>
 
           <div className="d-flex align-items-center gap-1">
@@ -272,19 +246,6 @@ const handleStatusDropdownChange = (user, newStatus) => {
               }}
               style={{ width: "80px" }}
             />
-            {(startDate || endDate) && (
-              <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={() => {
-                  setStartDate("");
-                  setEndDate("");
-                }}
-              >
-                <i className="bi bi-x"></i>
-              </Button>
-            )}
-
             <span className="ms-1">entries per page</span>
           </div>
         </div>
@@ -362,7 +323,7 @@ const handleStatusDropdownChange = (user, newStatus) => {
                   if (row.status === "Suspected") return "Suspected";
                   if (row.isPhoneVerified === "fail") return "Failed";
                   if (row.isPhoneVerified === true) return "Verified";
-                  return row.status || "Pending";
+                  return "Pending";
                 },
               },
               { header: "Created At", accessor: "createdAt" },
