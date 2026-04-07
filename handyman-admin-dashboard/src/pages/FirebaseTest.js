@@ -135,7 +135,7 @@ function FirebaseTest() {
         </button>
         <button className="btn btn-outline-danger" onClick={async () => {
           // Delete DummyJob node after careful confirmation
-          if (!confirm('Delete entire DummyJob node? This cannot be undone.')) return;
+          if (!window.confirm('Delete entire DummyJob node? This cannot be undone.')) return;
           try {
             await remove(ref(database, 'DummyJob'));
             alert('✅ DummyJob node deleted');
