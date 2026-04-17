@@ -23,7 +23,7 @@ import ConfirmModal from "../components/ConfirmModal";
 
 
 
-const roleOptions = ["Master Admin", "Staff Member"];
+const roleOptions = ["Admin", "Staff"];
 const statusOptions = ["active", "inactive"];
 
 function AdminSettings() {
@@ -47,7 +47,13 @@ const [showConfirmModal, setShowConfirmModal] = useState(false);
 const [confirmAction, setConfirmAction] = useState(() => {});
 const [confirmMessage, setConfirmMessage] = useState("");
 const [isProcessing, setIsProcessing] = useState(false);
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("currentUser"));
+    } catch {
+      return null;
+    }
+  })();
 
   useEffect(() => {
     const adminRef = ref(database, "admin");
@@ -84,7 +90,7 @@ const [isProcessing, setIsProcessing] = useState(false);
       firstName: "",
       lastName: "",
       email: "",
-      role: "Staff Member",
+      role: "Staff",
       status: "active",
       password: "",
       dateCreated: timestamp,
@@ -203,7 +209,7 @@ const [isProcessing, setIsProcessing] = useState(false);
           )}
         </div>
       </Fade>
-      {currentUser?.role === "Master Admin" ? (
+      {currentUser?.role === "Admin" ? (
         <div className="mt-4">
           <Row className="mb-4 align-items-center">
             <Col md={4} className="d-flex align-items-center">
@@ -287,7 +293,7 @@ const [isProcessing, setIsProcessing] = useState(false);
                   <td>{admin.email}</td>
                   <td>
                     <Badge
-                      bg={admin.role === "Master Admin" ? "danger" : "info"}
+                      bg={admin.role === "Admin" ? "danger" : "info"}
                     >
                       {admin.role}
                     </Badge>
@@ -464,7 +470,7 @@ const [isProcessing, setIsProcessing] = useState(false);
         </div>
       ) : (
         <p className="text-danger mt-3">
-          Access Denied. Only Master Admins can view this page.
+          Access Denied. Only Admins can view this page.
         </p>
       )}
       <ConfirmModal

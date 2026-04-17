@@ -13,7 +13,7 @@ function ForgotPassword() {
             <img src={HandymanLogo} alt="Handyman Logo" width="150" className="mx-auto d-block mb-4" />
             <h3 className="mb-3">Contact Help</h3>
             <p className="text-muted mb-4">
-              If you have forgotten your password, please contact the master admin for assistance.
+              If you have forgotten your password, please contact the Admin for assistance.
             </p>
             <Link to="/" className="btn btn-primary w-100">
               Back to Login

@@ -26,7 +26,13 @@ function HandymanVerification() {
   const [endDate, setEndDate] = useState("");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("currentUser"));
+    } catch {
+      return null;
+    }
+  })();
   const [error, setError] = useState(null);
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);

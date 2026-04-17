@@ -17,6 +17,14 @@ import StickyHeader from "../components/StickyHeader";
 import ConfirmModal from "../components/ConfirmModal";
 import ExportReportButton from "../components/ExportReportButton";
 
+const getCurrentUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("currentUser"));
+  } catch {
+    return null;
+  }
+};
+
 function UserVerification() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,7 +42,7 @@ function UserVerification() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = getCurrentUser();
 
   const [showIdModal, setShowIdModal] = useState(false);
   const [idImageUrl, setIdImageUrl] = useState("");
@@ -90,10 +98,11 @@ function UserVerification() {
         : `Are you sure you want to remove suspicion from ${userName}'s account?`,
       () => {
         const userRef = ref(database, `User/${userId}`);
+        const freshUser = getCurrentUser();
         update(userRef, {
           status: newStatus,
           lastUpdatedBy: {
-            adminEmail: currentUser.email,
+            adminEmail: freshUser?.email,
             updatedAt: new Date().toISOString(),
             changeType: "status",
           },
@@ -117,10 +126,11 @@ function UserVerification() {
       "Confirm Phone Verification",
       `Are you sure you want to mark phone of ${user.firstName} as verified?`,
       () => {
+        const freshUser = getCurrentUser();
         update(ref(database, `User/${user.userId}`), {
           isPhoneVerified: true,
           lastUpdatedBy: {
-            adminEmail: currentUser.email,
+            adminEmail: freshUser?.email,
             updatedAt: new Date().toISOString(),
             changeType: "phoneVerification",
           },
@@ -180,10 +190,11 @@ const handleStatusDropdownChange = (user, newStatus) => {
     `Are you sure you want to change ${user.firstName}'s status to "${newStatus}"?`,
     () => {
       const userRef = ref(database, `User/${user.userId}`);
+      const freshUser = getCurrentUser();
       update(userRef, {
         status: newStatus,
         lastUpdatedBy: {
-          adminEmail: currentUser.email,
+          adminEmail: freshUser?.email,
           updatedAt: new Date().toISOString(),
           changeType: "status",
         },
@@ -192,7 +203,6 @@ const handleStatusDropdownChange = (user, newStatus) => {
     }
   );
 };
-
 
   const startIndex = (currentPage - 1) * entriesPerPage;
   const currentData = filteredData.slice(

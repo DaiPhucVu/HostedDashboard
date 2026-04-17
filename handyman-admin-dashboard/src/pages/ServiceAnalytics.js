@@ -21,7 +21,13 @@ const ServiceAnalytics = () => {
   const [jobStats, setJobStats] = useState({ completed: 0, inProgress: 0, cancelled: 0 });
   const [ratingDistribution, setRatingDistribution] = useState([]);
 
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("currentUser"));
+    } catch {
+      return null;
+    }
+  })();
 
   useEffect(() => {
     const fetchData = async () => {

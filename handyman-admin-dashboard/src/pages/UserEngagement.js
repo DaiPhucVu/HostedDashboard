@@ -8,7 +8,13 @@ const UserEngagement = () => {
   const [monthlyData, setMonthlyData] = useState({});
   const [currentMonth, setCurrentMonth] = useState("May"); // Default to current month
 
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    const currentUser = (() => {
+      try {
+        return JSON.parse(localStorage.getItem("currentUser"));
+      } catch {
+        return null;
+      }
+    })();
 
   useEffect(() => {
     const db = getDatabase();

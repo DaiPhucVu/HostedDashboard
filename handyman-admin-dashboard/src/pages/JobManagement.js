@@ -43,7 +43,13 @@ function JobManagement() {
   const [assigningJob, setAssigningJob] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formErrors, setFormErrors] = useState({});
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("currentUser"));
+    } catch {
+      return null;
+    }
+  })();
   const [filterCategory, setFilterCategory] = useState("All");
   // maps for id -> display name to show friendly names in tables
   const [handymanMap, setHandymanMap] = useState({});

@@ -24,7 +24,13 @@ const iconMap = {
   CheckCircleIcon: Check,
 };
 
-const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+const currentUser = (() => {
+  try {
+    return JSON.parse(localStorage.getItem("currentUser"));
+  } catch {
+    return null;
+  }
+})();
 const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#3b82f6'];
 
 const Dashboard = () => {

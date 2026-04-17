@@ -15,7 +15,13 @@ function Login() {
   const [passwordValid, setPasswordValid] = useState(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("currentUser"));
+    } catch {
+      return null;
+    }
+  })();
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password) => password.length >= 6;
@@ -62,9 +68,12 @@ function Login() {
           setError("Incorrect password.");
         } else if (foundUser.status !== "active") {
           setError(
-            "This account is currently inactive.<br />Please contact Master Admin for support."
+            "This account is currently inactive.<br />Please contact Admin for support."
           );
         } else {
+          localStorage.removeItem("currentUser");
+          localStorage.removeItem("isLoggedIn");
+          localStorage.removeItem("userRole");
           localStorage.setItem("currentUser", JSON.stringify(foundUser));
           localStorage.setItem("isLoggedIn", "true");
           localStorage.setItem("userRole", foundUser.role);

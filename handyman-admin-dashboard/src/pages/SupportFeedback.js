@@ -47,7 +47,13 @@ function SupportFeedback() {
   });
 
   const entriesPerPage = 10;
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("currentUser"));
+    } catch {
+      return null;
+    }
+  })();
 
   useEffect(() => {
     const ticketsRef = ref(db, "support_requests");
@@ -126,7 +132,7 @@ function SupportFeedback() {
       const responseEntry = {
         message: replyMessage,
         time: timestamp,
-        repliedBy: currentUser?.firstName || "admin",
+        repliedBy: currentUser?.firstName || "Admin",
       };
 
       const templateParams = {
