@@ -16,7 +16,7 @@ import AdminProfileHeader from "../components/AdminProfileHeader";
 import { useUser } from "../context/UserContext"; // Assuming you have a UserContext to manage user state
 
 const Sidebar = () => {
-  const { currentUser } = useUser();
+  const { currentUser, logout } = useUser();
   // Check if the user is logged in
   if (!currentUser) {
     return null; // or redirect to login page
@@ -65,6 +65,12 @@ const Sidebar = () => {
       </nav>
       <div className="sidebar-footer">
         <AdminProfileHeader user={currentUser} />
+        <button
+          className="btn btn-outline-danger btn-sm w-100 mt-2"
+          onClick={logout}
+        >
+          Logout
+        </button>
       </div>
     </div>
   );

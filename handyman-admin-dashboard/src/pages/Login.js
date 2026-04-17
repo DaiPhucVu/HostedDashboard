@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { database } from "../firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+import { auth, database } from "../firebase";
 import { ref, get, child } from "firebase/database";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./../styles/Login.css";
@@ -38,6 +42,17 @@ function Login() {
     setPasswordValid(validatePassword(value));
   };
 
+  const loadAdminProfile = async (userEmail) => {
+    const dbRef = ref(database);
+    const snapshot = await get(child(dbRef, "admin"));
+    if (!snapshot.exists()) return null;
+    const admins = snapshot.val();
+    const adminList = Object.entries(admins)
+      .filter(([key]) => key !== "test")
+      .map(([id, data]) => ({ id, ...data }));
+    return adminList.find((u) => u.email === userEmail) || null;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -51,37 +66,70 @@ function Login() {
 
     try {
       setIsLoading(true);
-      const dbRef = ref(database);
-      const snapshot = await get(child(dbRef, "admin"));
 
-      if (snapshot.exists()) {
-        const admins = snapshot.val();
-        const adminList = Object.entries(admins)
-          .filter(([key]) => key !== "test")
-          .map(([id, data]) => ({ id, ...data }));
-
-        const foundUser = adminList.find((user) => user.email === email);
-
-        if (!foundUser) {
-          setError("Email not found.");
-        } else if (foundUser.password !== password) {
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (signInErr) {
+        if (signInErr.code === "auth/user-not-found") {
+          const rtdbUser = await loadAdminProfile(email);
+          if (!rtdbUser) {
+            setError("Email not found.");
+            return;
+          }
+          if (rtdbUser.password !== password) {
+            setError("Incorrect password.");
+            return;
+          }
+          if (rtdbUser.status !== "active") {
+            setError(
+              "This account is currently inactive.<br />Please contact Admin for support."
+            );
+            return;
+          }
+          try {
+            await createUserWithEmailAndPassword(auth, email, password);
+          } catch (createErr) {
+            if (createErr.code === "auth/email-already-in-use") {
+              setError("Incorrect password.");
+              return;
+            }
+            throw createErr;
+          }
+        } else if (
+          signInErr.code === "auth/wrong-password" ||
+          signInErr.code === "auth/invalid-credential"
+        ) {
           setError("Incorrect password.");
-        } else if (foundUser.status !== "active") {
+          return;
+        } else if (signInErr.code === "auth/too-many-requests") {
           setError(
-            "This account is currently inactive.<br />Please contact Admin for support."
+            "Too many failed attempts. Please try again later."
           );
+          return;
         } else {
-          localStorage.removeItem("currentUser");
-          localStorage.removeItem("isLoggedIn");
-          localStorage.removeItem("userRole");
-          localStorage.setItem("currentUser", JSON.stringify(foundUser));
-          localStorage.setItem("isLoggedIn", "true");
-          localStorage.setItem("userRole", foundUser.role);
-          navigate("/dashboard", { state: { user: foundUser } });
+          throw signInErr;
         }
-      } else {
-        setError("No admin users found.");
       }
+
+      const profile = await loadAdminProfile(email);
+      if (!profile) {
+        setError("Email not found.");
+        return;
+      }
+      if (profile.status !== "active") {
+        setError(
+          "This account is currently inactive.<br />Please contact Admin for support."
+        );
+        return;
+      }
+
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("userRole");
+      localStorage.setItem("currentUser", JSON.stringify(profile));
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userRole", profile.role);
+      navigate("/dashboard", { state: { user: profile } });
     } catch (err) {
       console.error("Login error:", err);
       setError("Failed to connect to database. Try again.");
