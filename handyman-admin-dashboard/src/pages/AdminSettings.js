@@ -79,7 +79,9 @@ const [isProcessing, setIsProcessing] = useState(false);
 
   const handleEdit = (admin) => {
     setIsNewAdmin(false);
-    setSelectedAdmin({ ...admin, lastUpdated: new Date().toISOString() });
+    const lower = (admin.role || "").toLowerCase();
+    const normalizedRole = lower.includes("staff") ? "Staff" : "Admin";
+    setSelectedAdmin({ ...admin, role: normalizedRole, lastUpdated: new Date().toISOString() });
     setShowModal(true);
   };
 
@@ -182,7 +184,7 @@ const [isProcessing, setIsProcessing] = useState(false);
       );
     }
     if (filterRole) {
-      result = result.filter((admin) => admin.role === filterRole);
+      result = result.filter((admin) => admin.role?.toLowerCase() === filterRole?.toLowerCase());
     }
     if (filterStatus) {
       result = result.filter((admin) => admin.status === filterStatus);
@@ -293,7 +295,7 @@ const [isProcessing, setIsProcessing] = useState(false);
                   <td>{admin.email}</td>
                   <td>
                     <Badge
-                      bg={admin.role === "Admin" ? "danger" : "info"}
+                      bg={admin.role?.toLowerCase() === "admin" ? "danger" : "info"}
                     >
                       {admin.role}
                     </Badge>
