@@ -1,5 +1,6 @@
 // src/context/UserContext.js
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { ref, get, child } from "firebase/database";
 import { auth, database } from "../firebase";
@@ -7,6 +8,7 @@ import { auth, database } from "../firebase";
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const stored = localStorage.getItem("currentUser");
@@ -56,7 +58,7 @@ export const UserProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await signOut(auth);
     } catch (err) {
@@ -66,7 +68,8 @@ export const UserProvider = ({ children }) => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userRole");
     setCurrentUser(null);
-  };
+    navigate("/");
+  }, [navigate]);
 
   return (
     <UserContext.Provider value={{ currentUser, setCurrentUser, logout }}>

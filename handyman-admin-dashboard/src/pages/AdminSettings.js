@@ -209,7 +209,7 @@ const [isProcessing, setIsProcessing] = useState(false);
           )}
         </div>
       </Fade>
-      {currentUser?.role === "Admin" ? (
+      {currentUser?.role?.toLowerCase() === "admin" ? (
         <div className="mt-4">
           <Row className="mb-4 align-items-center">
             <Col md={4} className="d-flex align-items-center">

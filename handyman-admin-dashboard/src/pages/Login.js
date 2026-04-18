@@ -70,7 +70,14 @@ function Login() {
       try {
         await signInWithEmailAndPassword(auth, email, password);
       } catch (signInErr) {
-        if (signInErr.code === "auth/user-not-found") {
+        if (
+          signInErr.code === "auth/user-not-found" ||
+          signInErr.code === "auth/invalid-credential" ||
+          signInErr.code === "auth/wrong-password"
+        ) {
+          // Firebase v9+ merges user-not-found and wrong-password into
+          // invalid-credential to prevent user enumeration.  We check
+          // RTDB to distinguish "not yet migrated" from "truly wrong pw".
           const rtdbUser = await loadAdminProfile(email);
           if (!rtdbUser) {
             setError("Email not found.");
@@ -90,17 +97,12 @@ function Login() {
             await createUserWithEmailAndPassword(auth, email, password);
           } catch (createErr) {
             if (createErr.code === "auth/email-already-in-use") {
+              // User exists in Firebase Auth but password differs from RTDB
               setError("Incorrect password.");
               return;
             }
             throw createErr;
           }
-        } else if (
-          signInErr.code === "auth/wrong-password" ||
-          signInErr.code === "auth/invalid-credential"
-        ) {
-          setError("Incorrect password.");
-          return;
         } else if (signInErr.code === "auth/too-many-requests") {
           setError(
             "Too many failed attempts. Please try again later."
