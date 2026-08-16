@@ -7,6 +7,7 @@ import HandymanVerification from "./pages/HandymanVerification";
 import UserVerification from "./pages/UserVerification";
 import UserManagement from "./pages/UserManagement";
 import JobManagement from "./pages/JobManagement";
+import AssignJob from "./pages/AssignJob";
 import ServiceAnalytics from "./pages/ServiceAnalytics";
 import UserEngagement from "./pages/UserEngagement";
 import AdminSettings from "./pages/AdminSettings";
@@ -47,6 +48,7 @@ function App() {
                   <Route path="/user-verification" element={<UserVerification />} />
                   <Route path="/user-management" element={<UserManagement />} />
                   <Route path="/job-management" element={<JobManagement />} />
+                  <Route path="/assign-job" element={<AssignJob />} />
                   <Route path="/service-analytics" element={<ServiceAnalytics />} />
                   <Route path="/user-engagement" element={<UserEngagement />} />
                   <Route path="/admin-settings" element={<AdminSettings />} />

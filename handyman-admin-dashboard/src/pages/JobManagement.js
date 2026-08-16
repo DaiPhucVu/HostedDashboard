@@ -14,7 +14,7 @@ import {
 import PaginationControls from "../components/PaginationControls";
 import StickyHeader from "../components/StickyHeader";
 import { database } from "../firebase";
-import { ref, get, onValue, update, remove, push } from "firebase/database";
+import { ref, get, onValue, update, remove } from "firebase/database";
 import ConfirmModal from "../components/ConfirmModal";
 import ExportReportButton from "../components/ExportReportButton";
 import JOB_CATEGORIES from "../constants/jobCategories";
@@ -35,12 +35,6 @@ function JobManagement() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
-  const [showAssignModal, setShowAssignModal] = useState(false);
-  const [assignCandidates, setAssignCandidates] = useState([]);
-  const [assignSelected, setAssignSelected] = useState(null);
-  const [assignNotes, setAssignNotes] = useState("");
-  const [assignPrice, setAssignPrice] = useState("");
-  const [assigningJob, setAssigningJob] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const currentUser = (() => {
@@ -216,77 +210,6 @@ function JobManagement() {
   const handleDeleteClick = (job) => {
     setJobToDelete(job);
     setShowDeleteConfirm(true);
-  };
-
-  const handleAssignClick = (job) => {
-    setAssigningJob(job);
-    setAssignNotes("");
-    setAssignPrice("");
-    setAssignSelected(null);
-    setShowAssignModal(true);
-
-    // Attempt to read handymen from DB; fallback to local mock data
-    const handymanRef = ref(database, "Handyman");
-    get(handymanRef)
-      .then((snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const list = Object.keys(data).map((id) => ({ handymanId: id, ...data[id] }));
-          setAssignCandidates(list);
-        } else {
-          setAssignCandidates(handymanMocks);
-        }
-      })
-      .catch((err) => {
-        console.error("Error loading handymen:", err);
-        setAssignCandidates(handymanMocks);
-      });
-  };
-
-  const handleConfirmAssign = async () => {
-    if (!assigningJob || !assignSelected) return;
-    const jobId = assigningJob.jobId;
-    const assignmentObj = {
-      assignedTo: assignSelected.handymanId,
-      assignedBy: currentUser?.email || currentUser?.id || "admin",
-      assignedAt: new Date().toISOString(),
-      assignmentNotes: assignNotes || "",
-      assignmentPrice: assignPrice || null,
-    };
-    const payload = {
-      assignment: assignmentObj,
-      // convenience top-level fields so UIs that read older paths can show status
-      assignedTo: assignmentObj.assignedTo,
-      assignedBy: assignmentObj.assignedBy,
-      assignedAt: assignmentObj.assignedAt,
-    };
-
-    try {
-      // Update only the canonical Job node
-      const jobRef = ref(database, `Job/${jobId}`);
-      await update(jobRef, payload);
-
-      // push history entry to Job/assignmentHistory
-      const historyRefJob = ref(database, `Job/${jobId}/assignmentHistory`);
-      const historyEntry = {
-        actorId: currentUser?.id || currentUser?.email || "admin",
-        action: "assign",
-        to: assignSelected.handymanId,
-        price: assignPrice || null,
-        notes: assignNotes || "",
-        ts: new Date().toISOString(),
-      };
-      await push(historyRefJob, historyEntry);
-
-      setShowAssignModal(false);
-      setAssigningJob(null);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 1500);
-    } catch (err) {
-      console.error("Error assigning job:", err);
-      setShowAssignModal(false);
-      setAssigningJob(null);
-    }
   };
 
   const handleConfirmDelete = () => {
@@ -578,9 +501,6 @@ function JobManagement() {
                     <Button size="sm" variant="info" onClick={() => handleViewClick(job)}>
                       View
                     </Button>
-                    <Button size="sm" variant="primary" onClick={() => handleAssignClick(job)}>
-                      Assign
-                    </Button>
                     <Button size="sm" variant="danger" onClick={() => handleDeleteClick(job)}>
                       Delete
                     </Button>
@@ -674,75 +594,6 @@ function JobManagement() {
         confirmText="Delete"
         cancelText="Cancel"
       />
-
-      <Modal show={showAssignModal} onHide={() => setShowAssignModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Assign Job</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="mb-2">
-            <strong>Job:</strong> {assigningJob?.jobId} — {assigningJob?.jobDesc}
-          </div>
-          <Form.Group className="mb-2">
-            <Form.Label>Search / Filter</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Filter candidates (skill, name, area)"
-              onChange={(e) => {
-                const q = e.target.value.trim().toLowerCase();
-                if (!q) {
-                  // reload from DB fallback (one-time)
-                  const handymanRef = ref(database, "Handyman");
-                  get(handymanRef)
-                    .then((snapshot) => {
-                      const data = snapshot.val();
-                      if (data) setAssignCandidates(Object.keys(data).map((id) => ({ handymanId: id, ...data[id] })));
-                      else setAssignCandidates(handymanMocks);
-                    })
-                    .catch(() => setAssignCandidates(handymanMocks));
-                } else {
-                  setAssignCandidates((prev) => prev.filter((h) => {
-                    const name = `${h.firstName || ""} ${h.lastName || ""}`.toLowerCase();
-                    const skills = (h.skills || []).join(" ").toLowerCase();
-                    const area = (h.area || h.city || "").toLowerCase();
-                    return name.includes(q) || skills.includes(q) || area.includes(q);
-                  }));
-                }
-              }}
-            />
-          </Form.Group>
-
-          <div style={{ maxHeight: 300, overflowY: "auto" }}>
-            {assignCandidates.map((h) => (
-              <div key={h.handymanId} className={`p-2 border rounded mb-2 ${assignSelected?.handymanId === h.handymanId ? 'bg-light' : ''}`} onClick={() => setAssignSelected(h)} style={{ cursor: 'pointer' }}>
-                <div className="d-flex justify-content-between">
-                  <div>
-                    <strong>{h.firstName} {h.lastName}</strong>
-                    <div className="text-muted small">{h.city || h.area || ''}</div>
-                    <div className="text-muted small">Skills: {(h.skills || []).join(', ')}</div>
-                  </div>
-                  <div>
-                    {assignSelected?.handymanId === h.handymanId && <Badge bg="primary">Selected</Badge>}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <Form.Group className="mt-3 mb-2">
-            <Form.Label>Assignment Price (optional)</Form.Label>
-            <Form.Control type="number" value={assignPrice} onChange={(e) => setAssignPrice(e.target.value)} />
-          </Form.Group>
-          <Form.Group className="mb-2">
-            <Form.Label>Notes (optional)</Form.Label>
-            <Form.Control as="textarea" rows={3} value={assignNotes} onChange={(e) => setAssignNotes(e.target.value)} />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowAssignModal(false)}>Cancel</Button>
-          <Button variant="primary" onClick={handleConfirmAssign} disabled={!assignSelected}>Assign</Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 }
