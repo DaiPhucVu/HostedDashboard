@@ -10,6 +10,7 @@ const firstDefined = (...values) =>
 const normalizeJob = (jobId, job = {}) => ({
   ...job,
   jobId: firstDefined(job.jobId, job.id, jobId),
+  postedAt: firstDefined(job.postedAt, job.createdAt, job.created_at, job.createdDate),
   jobCat: firstDefined(job.jobCat, job.category, job.jobCategory),
   jobDesc: firstDefined(job.jobDesc, job.description, job.jobDescription),
   jobLocation: firstDefined(job.jobLocation, job.location, job.address),
@@ -27,6 +28,11 @@ const normalizeJob = (jobId, job = {}) => ({
   jobSalaryTo: firstDefined(job.jobSalaryTo, job.salaryTo, job.budgetTo, job.budget, job.price),
   jobStatus: firstDefined(job.jobStatus, job.status),
 });
+
+const getPostedTime = (job) => {
+  const timestamp = Date.parse(job.postedAt);
+  return Number.isNaN(timestamp) ? Number.MAX_SAFE_INTEGER : timestamp;
+};
 
 function AssignJob() {
   const [jobs, setJobs] = useState([]);
@@ -71,7 +77,11 @@ function AssignJob() {
         return !hasAssignee && !isDoneOrCancelled && (isOpenLike || !status);
       };
 
-      setJobs(jobsArray.filter(isAvailableJob));
+      setJobs(
+        jobsArray
+          .filter(isAvailableJob)
+          .sort((firstJob, secondJob) => getPostedTime(secondJob) - getPostedTime(firstJob))
+      );
     });
 
     return () => unsubscribe();
