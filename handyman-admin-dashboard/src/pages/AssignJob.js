@@ -4,6 +4,30 @@ import { database } from "../firebase";
 import { onValue, ref, update } from "firebase/database";
 import StickyHeader from "../components/StickyHeader";
 
+const firstDefined = (...values) =>
+  values.find((value) => value !== undefined && value !== null && value !== "") || "";
+
+const normalizeJob = (jobId, job = {}) => ({
+  ...job,
+  jobId: firstDefined(job.jobId, job.id, jobId),
+  jobCat: firstDefined(job.jobCat, job.category, job.jobCategory),
+  jobDesc: firstDefined(job.jobDesc, job.description, job.jobDescription),
+  jobLocation: firstDefined(job.jobLocation, job.location, job.address),
+  jobDateFrom: firstDefined(job.jobDateFrom, job.dateFrom, job.startDate, job.date),
+  jobDateTo: firstDefined(job.jobDateTo, job.dateTo, job.endDate, job.date),
+  jobTimeFrom: firstDefined(job.jobTimeFrom, job.timeFrom, job.startTime),
+  jobTimeTo: firstDefined(job.jobTimeTo, job.timeTo, job.endTime),
+  jobSalaryFrom: firstDefined(
+    job.jobSalaryFrom,
+    job.salaryFrom,
+    job.budgetFrom,
+    job.budget,
+    job.price
+  ),
+  jobSalaryTo: firstDefined(job.jobSalaryTo, job.salaryTo, job.budgetTo, job.budget, job.price),
+  jobStatus: firstDefined(job.jobStatus, job.status),
+});
+
 function AssignJob() {
   const [jobs, setJobs] = useState([]);
   const [handymen, setHandymen] = useState([]);
@@ -33,10 +57,9 @@ function AssignJob() {
         return;
       }
 
-      const jobsArray = Object.entries(data).map(([jobId, job]) => ({
-        jobId,
-        ...job,
-      }));
+      const jobsArray = Object.entries(data).map(([jobId, job]) =>
+        normalizeJob(jobId, job)
+      );
 
       const isAvailableJob = (job) => {
         const status = String(job?.jobStatus || "").trim().toLowerCase();
