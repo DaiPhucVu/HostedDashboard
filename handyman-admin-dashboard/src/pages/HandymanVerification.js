@@ -312,6 +312,11 @@ function HandymanVerification() {
     declined: { color: "#e74c3c", icon: "bi bi-x-circle", label: "Declined" },
   };
 
+  const getStatusStyle = (status) => {
+    const key = status?.toString().toLowerCase();
+    return statusStyles[key] || statusStyles["pending"];
+  };
+
   const verificationStatusOptions = [
     { value: "pending", label: "Pending", color: "#ffc107" },
     { value: "approved", label: "Approved", color: "#15af52" },
@@ -319,9 +324,9 @@ function HandymanVerification() {
     { value: "suspected", label: "Suspected", color: "#6c757d" },
   ];
 
-  const DocStatusText = ({ status = "Pending" }) => {
-    const { color, icon, label } =
-      statusStyles[status] || statusStyles["Pending"];
+  const DocStatusText = ({ status = "pending" }) => {
+    const key = status?.toString().toLowerCase();
+    const { color, icon, label } = statusStyles[key] || statusStyles["pending"];
     return (
       <span
         style={{
@@ -709,9 +714,7 @@ function HandymanVerification() {
                         }
                         style={{
                           cursor: "pointer",
-                          color:
-                            statusStyles[item.idApprovedStatus || "pending"]
-                              .color,
+                          color: getStatusStyle(item.idApprovedStatus).color,
                           fontWeight: 600,
                           marginLeft: "0.5rem",
                         }}
@@ -734,10 +737,8 @@ function HandymanVerification() {
                         }
                         style={{
                           cursor: "pointer",
-                          color:
-                            statusStyles[
-                              item.certificateApprovedStatus || "pending"
-                            ].color,
+                          color: getStatusStyle(item.certificateApprovedStatus)
+                            .color,
                           fontWeight: 600,
                           marginLeft: "0.5rem",
                         }}
