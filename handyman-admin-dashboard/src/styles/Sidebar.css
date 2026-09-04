@@ -1,4 +1,9 @@
 .sidebar {
+  /* `width` alone is only a suggestion for a flex item: the default
+     flex-shrink of 1 lets a wide table in the sibling column squash the
+     sidebar down to a few characters ("Ha Ve", "Ma"). flex-basis with
+     shrink disabled pins it at 250px. */
+  flex: 0 0 250px;
   width: 250px;
   background-color: #f8f9fa;
   /* prevent flex container from shrinking the sidebar when content changes */

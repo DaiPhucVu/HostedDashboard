@@ -16,6 +16,7 @@ import StickyHeader from "../components/StickyHeader";
 import ConfirmModal from "../components/ConfirmModal";
 import VerificationModal from "../components/VerificationModal";
 import ExportReportButton from "../components/ExportReportButton";
+import "../styles/VerificationTable.css";
 
 function HandymanVerification() {
   const [filterStatus, setFilterStatus] = useState("All");
@@ -46,6 +47,7 @@ function HandymanVerification() {
   const [isApproved, setIsApproved] = useState(false);
   const [verificationType, setVerificationType] = useState("");
   const [verificationLinks, setVerificationLinks] = useState([]);
+  const [verificationText, setVerificationText] = useState("");
   const [notification, setNotification] = useState({
     show: false,
     message: "",
@@ -81,7 +83,7 @@ function HandymanVerification() {
       const idStatus =
         type === "identity" ? normalized : currentHandyman[idField] || "pending";
       const certStatus =
-        type === "certificates"
+        type === "nid"
           ? normalized
           : currentHandyman[certField] || "pending";
       const manual = currentHandyman.verificationStatusManual;
@@ -101,7 +103,7 @@ function HandymanVerification() {
       setNotification({
         show: true,
         message: `Document ${
-          type === "identity" ? "ID Card" : "Certificate"
+          type === "identity" ? "ID Card" : "NID"
         } ${normalized}.`,
         variant: normalized === "approved" ? "success" : "danger",
       });
@@ -130,10 +132,19 @@ function HandymanVerification() {
   };
 
   const handleOpenVerificationModal = (handyman, type) => {
-    const link =
-      type === "identity" ? handyman.photoIdCard : handyman.certificates;
-    const formattedLinks = Array.isArray(link) ? link : link ? [link] : [];
-    setVerificationLinks(formattedLinks);
+    // NID is a typed number, so it is shown as text rather than an image.
+    // Handymen from the old flow have a certificate URL instead — keep showing
+    // that as a document so their submissions stay reviewable.
+    if (type === "nid" && handyman.nid) {
+      setVerificationText(handyman.nid);
+      setVerificationLinks([]);
+    } else {
+      const link =
+        type === "identity" ? handyman.photoIdCard : handyman.certificates;
+      const formattedLinks = Array.isArray(link) ? link : link ? [link] : [];
+      setVerificationText("");
+      setVerificationLinks(formattedLinks);
+    }
     setVerificationType(type);
     setComments("");
     setIsApproved(false);
@@ -158,7 +169,7 @@ function HandymanVerification() {
       "division",
       "postcode",
     ],
-    Documents: ["photoIdCard", "certificates"],
+    Documents: ["photoIdCard", "nid"],
     "Account Info": [
       "verificationStatus",
       "isPhoneVerified",
@@ -600,7 +611,9 @@ function HandymanVerification() {
                 }, ${row.postcode || ""}`,
             },
             { header: "ID Card", accessor: "photoIdCard" },
-            { header: "Certificates", accessor: "certificates" },
+            // Exported as a plain number so the column is sortable and
+            // cross-referenceable, which a Storage URL never was.
+            { header: "NID", accessor: (row) => row.nid || "" },
             {
               header: "Status",
               accessor: (row) =>
@@ -624,7 +637,8 @@ function HandymanVerification() {
           <p className="mt-3">Loading Handyman Data...</p>
         </div>
       ) : (
-        <table className="table">
+        <div className="table-responsive verification-table-wrap">
+        <table className="table align-middle">
           <thead>
             <tr>
               <th>ID</th>
@@ -632,7 +646,7 @@ function HandymanVerification() {
               <th>Phone</th>
               <th>Address</th>
               <th>Identity Card</th>
-              <th>Certificates</th>
+              <th>NID</th>
               <th>Status</th>
               <th>Submission Date</th>
               <th>Actions</th>
@@ -739,7 +753,7 @@ function HandymanVerification() {
                         variant="link"
                         className="p-0 text-decoration-none"
                         onClick={() =>
-                          handleOpenVerificationModal(item, "certificates")
+                          handleOpenVerificationModal(item, "nid")
                         }
                         style={{
                           cursor: "pointer",
@@ -749,9 +763,15 @@ function HandymanVerification() {
                           marginLeft: "0.5rem",
                         }}
                       >
-                        {item.certificates?.startsWith("http")
+                        {/* The app now collects a typed NID number instead of a
+                            certificate upload. Older accounts still hold a
+                            Storage URL in `certificates`, so fall back to that
+                            so their documents stay reviewable. */}
+                        {item.nid
+                          ? item.nid
+                          : item.certificates?.startsWith("http")
                           ? "View Certificate"
-                          : item.certificates || "No Certificate"}
+                          : item.certificates || "No NID"}
                       </Button>
                     </div>
                   </td>
@@ -827,6 +847,7 @@ function HandymanVerification() {
             )}
           </tbody>
         </table>
+        </div>
       )}
 
       <PaginationControls
@@ -930,7 +951,7 @@ function HandymanVerification() {
                                           )}
                                         </>
                                       )}
-                                      {fieldKey === "certificates" && (
+                                      {fieldKey === "nid" && (
                                         <>
                                           {editedUser.certificateApprovedStatus ===
                                             "approved" && (
@@ -1079,10 +1100,11 @@ function HandymanVerification() {
         show={showVerificationModal}
         onHide={() => setShowVerificationModal(false)}
         title={
-          verificationType === "identity" ? "Identity Card" : "Certificates"
+          verificationType === "identity" ? "Identity Card" : "NID"
         }
         documentType={verificationType}
         documentLinks={verificationLinks}
+        textValue={verificationText}
         comments={comments}
         setComments={setComments}
         isApproved={isApproved}

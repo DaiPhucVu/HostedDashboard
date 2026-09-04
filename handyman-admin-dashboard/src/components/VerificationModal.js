@@ -7,6 +7,9 @@ const VerificationModal = ({
   title,
   documentType,
   documentLinks = [],
+  // A typed value (e.g. an NID number) shown instead of an image preview.
+  // Documents that are uploaded files still come through documentLinks.
+  textValue,
   comments,
   setComments,
   isApproved,
@@ -21,25 +24,52 @@ const VerificationModal = ({
       </Modal.Header>
 
       <Modal.Body>
-        <h6 className="mb-3">Document Preview</h6>
-        <Row className="mb-4">
-          {documentLinks.map((link, index) => (
-            <Col md={6} key={index}>
-              {link?.endsWith(".pdf") ? (
-                <a href={link} target="_blank" rel="noopener noreferrer">
-                  View PDF Document {index + 1}
-                </a>
-              ) : (
-                <img
-                  src={link}
-                  alt={`Document ${index + 1}`}
-                  className="img-fluid rounded border mb-2"
-                  style={{ maxHeight: "250px", width: "100%", objectFit: "cover" }}
-                />
+        {textValue ? (
+          <>
+            <h6 className="mb-3">Submitted Value</h6>
+            <div className="mb-4 p-3 bg-light border rounded">
+              <div
+                style={{
+                  fontFamily: "monospace",
+                  fontSize: "1.5rem",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                {textValue}
+              </div>
+              <div className="text-muted small mt-1">
+                {String(textValue).length} digits
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <h6 className="mb-3">Document Preview</h6>
+            <Row className="mb-4">
+              {documentLinks.length === 0 && (
+                <Col>
+                  <div className="text-muted">Nothing submitted yet.</div>
+                </Col>
               )}
-            </Col>
-          ))}
-        </Row>
+              {documentLinks.map((link, index) => (
+                <Col md={6} key={index}>
+                  {link?.endsWith(".pdf") ? (
+                    <a href={link} target="_blank" rel="noopener noreferrer">
+                      View PDF Document {index + 1}
+                    </a>
+                  ) : (
+                    <img
+                      src={link}
+                      alt={`Document ${index + 1}`}
+                      className="img-fluid rounded border mb-2"
+                      style={{ maxHeight: "250px", width: "100%", objectFit: "cover" }}
+                    />
+                  )}
+                </Col>
+              ))}
+            </Row>
+          </>
+        )}
 
         <Form.Group className="mb-3">
           <Form.Check
