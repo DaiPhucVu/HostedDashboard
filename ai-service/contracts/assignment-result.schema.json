@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://handyman.local/contracts/assignment-result.schema.json",
+  "title": "AssignmentRecord",
+  "type": "object",
+  "required": ["assignmentId", "jobId", "providerId", "status", "jobVersion", "idempotencyKey"],
+  "additionalProperties": false,
+  "properties": {
+    "assignmentId": {"type": "string", "minLength": 1},
+    "jobId": {"type": "string", "minLength": 1},
+    "providerId": {"type": "string", "minLength": 1},
+    "status": {"enum": ["OFFERED", "CANCELLED"]},
+    "jobVersion": {"type": "integer", "minimum": 1},
+    "idempotencyKey": {"type": "string", "minLength": 8}
+  }
+}

@@ -38,14 +38,6 @@ function SupportFeedback() {
   });
   const [isSending, setIsSending] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [newTicketData, setNewTicketData] = useState({
-    user: "",
-    email: "",
-    subject: "",
-    message: "",
-    category: "",
-  });
-
   const entriesPerPage = 10;
   const currentUser = (() => {
     try {
@@ -206,41 +198,6 @@ function SupportFeedback() {
       };
       const ticketRef = ref(db, `support_requests/${selectedTicket.id}`);
       set(ticketRef, updatedTicket);
-    }
-  };
-
-  const handleNewTicketChange = (e) => {
-    const { name, value } = e.target;
-    setNewTicketData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCreateTicket = (e) => {
-    e.preventDefault();
-    const { user, email, subject, message, category } = newTicketData;
-    if (user && email && subject && message && category) {
-      const id = `T${Date.now()}`;
-      const ticket = {
-        ...newTicketData,
-        status: "Open",
-        createdAt: new Date().toISOString(),
-        lastUpdatedAt: new Date().toISOString(),
-        replies: [],
-      };
-      const ticketRef = ref(db, `support_requests/${id}`);
-      set(ticketRef, ticket).then(() => {
-        setNotification({
-          show: true,
-          message: "✅ New ticket successfully created.",
-          variant: "success",
-        });
-        setNewTicketData({
-          user: "",
-          email: "",
-          subject: "",
-          message: "",
-          category: "",
-        });
-      });
     }
   };
 

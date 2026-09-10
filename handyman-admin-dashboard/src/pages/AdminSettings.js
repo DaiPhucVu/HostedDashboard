@@ -1,5 +1,5 @@
 // TODO: Add a pop up modal delete or edit
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Table,
   Button,
@@ -27,7 +27,6 @@ const roleOptions = ["Admin", "Staff"];
 const statusOptions = ["active", "inactive"];
 
 function AdminSettings() {
-  const [admins, setAdmins] = useState([]);
   const [filteredAdmins, setFilteredAdmins] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState(null);
@@ -55,6 +54,27 @@ const [isProcessing, setIsProcessing] = useState(false);
     }
   })();
 
+  const applyFilters = useCallback((data) => {
+    let result = data;
+    if (searchTerm) {
+      result = result.filter(
+        (admin) =>
+          admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          `${admin.firstName} ${admin.lastName}`
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          admin.role.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    if (filterRole) {
+      result = result.filter((admin) => admin.role?.toLowerCase() === filterRole.toLowerCase());
+    }
+    if (filterStatus) {
+      result = result.filter((admin) => admin.status === filterStatus);
+    }
+    setFilteredAdmins(result);
+  }, [filterRole, filterStatus, searchTerm]);
+
   useEffect(() => {
     const adminRef = ref(database, "admin");
     return onValue(adminRef, (snapshot) => {
@@ -64,10 +84,9 @@ const [isProcessing, setIsProcessing] = useState(false);
             .filter(([key]) => key !== "test")
             .map(([id, admin]) => ({ id, ...admin }))
         : [];
-      setAdmins(adminArray);
       applyFilters(adminArray);
     });
-  }, [filterRole, filterStatus, searchTerm]);
+  }, [applyFilters]);
 
   const showNotification = (message, variant = "success") => {
     setNotification({ show: true, message, variant });
@@ -169,27 +188,6 @@ const [isProcessing, setIsProcessing] = useState(false);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSelectedAdmin((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const applyFilters = (data) => {
-    let result = data;
-    if (searchTerm) {
-      result = result.filter(
-        (admin) =>
-          admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          `${admin.firstName} ${admin.lastName}`
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          admin.role.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    if (filterRole) {
-      result = result.filter((admin) => admin.role?.toLowerCase() === filterRole?.toLowerCase());
-    }
-    if (filterStatus) {
-      result = result.filter((admin) => admin.status === filterStatus);
-    }
-    setFilteredAdmins(result);
   };
 
   return (

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://handyman.local/contracts/provider.schema.json",
+  "title": "ProviderProfile",
+  "type": "object",
+  "required": [
+    "providerId", "verified", "skills", "available", "latitude", "longitude",
+    "serviceRadiusKm", "activeJobs", "maxConcurrentJobs", "averageRating",
+    "reviewCount", "completionRate", "cancellationRate", "medianResponseMinutes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "providerId": {"type": "string", "minLength": 1},
+    "displayName": {"type": "string"},
+    "verified": {"type": "boolean"},
+    "skills": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "languages": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "available": {"type": "boolean"},
+    "latitude": {"type": "number", "minimum": -90, "maximum": 90},
+    "longitude": {"type": "number", "minimum": -180, "maximum": 180},
+    "serviceRadiusKm": {"type": "number", "exclusiveMinimum": 0},
+    "activeJobs": {"type": "integer", "minimum": 0},
+    "maxConcurrentJobs": {"type": "integer", "minimum": 1},
+    "averageRating": {"type": "number", "minimum": 0, "maximum": 5},
+    "reviewCount": {"type": "integer", "minimum": 0},
+    "completionRate": {"type": "number", "minimum": 0, "maximum": 1},
+    "cancellationRate": {"type": "number", "minimum": 0, "maximum": 1},
+    "medianResponseMinutes": {"type": "number", "minimum": 0}
+  }
+}

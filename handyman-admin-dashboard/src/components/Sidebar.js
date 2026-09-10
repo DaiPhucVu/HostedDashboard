@@ -44,10 +44,6 @@ const Sidebar = () => {
         <NavLink to="/job-management" className="nav-link">
           <FaToolbox className="me-2" /> Job Management
         </NavLink>
-        <NavLink to="/assign-job" className="nav-link">
-          <FaToolbox className="me-2" /> Assign Job
-        </NavLink>
-
         <hr />
 
         <NavLink to="/service-analytics" className="nav-link">

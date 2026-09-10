@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://handyman.local/contracts/assignment-command.schema.json",
+  "title": "AssignmentCommand",
+  "type": "object",
+  "required": ["jobId", "providerId", "actorId", "expectedJobVersion", "idempotencyKey", "selectedRank"],
+  "additionalProperties": false,
+  "properties": {
+    "jobId": {"type": "string", "minLength": 1},
+    "providerId": {"type": "string", "minLength": 1},
+    "actorId": {"type": "string", "minLength": 1},
+    "expectedJobVersion": {"type": "integer", "minimum": 0},
+    "idempotencyKey": {"type": "string", "minLength": 8},
+    "rankingVersion": {"type": ["string", "null"]},
+    "selectedRank": {"type": ["integer", "null"], "minimum": 1},
+    "overrideReason": {"type": ["string", "null"]}
+  }
+}

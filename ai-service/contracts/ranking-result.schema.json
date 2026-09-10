@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://handyman.local/contracts/ranking-result.schema.json",
+  "title": "RankingResult",
+  "type": "object",
+  "required": ["jobId", "rankingVersion", "candidates", "alternatives", "rejected"],
+  "additionalProperties": false,
+  "properties": {
+    "jobId": {"type": "string"},
+    "rankingVersion": {"type": "string"},
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["providerId", "rank", "totalScore", "scoreBreakdown", "reasonCodes"],
+        "properties": {
+          "providerId": {"type": "string"},
+          "rank": {"type": "integer", "minimum": 1},
+          "totalScore": {"type": "number", "minimum": 0, "maximum": 1},
+          "scoreBreakdown": {"type": "object", "additionalProperties": {"type": "number"}},
+          "reasonCodes": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["providerId", "rank", "totalScore", "scoreBreakdown", "reasonCodes"],
+        "properties": {
+          "providerId": {"type": "string"},
+          "rank": {"type": "integer", "minimum": 1},
+          "totalScore": {"type": "number", "minimum": 0, "maximum": 1},
+          "scoreBreakdown": {"type": "object", "additionalProperties": {"type": "number"}},
+          "reasonCodes": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "rejected": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["providerId", "reasonCodes"],
+        "properties": {
+          "providerId": {"type": "string"},
+          "reasonCodes": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}

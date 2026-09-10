@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://handyman.local/contracts/triage-result.schema.json",
+  "title": "TriageResult",
+  "type": "object",
+  "required": [
+    "jobId", "triageStatus", "categoryId", "urgency", "requiredSkills",
+    "missingFields", "confidence", "evidenceDocIds",
+    "reasonCodes", "issueSummary", "extractedIssues", "language",
+    "safetyFlags", "modelVersion"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "jobId": {"type": "string"},
+    "triageStatus": {"enum": ["NEEDS_INFO", "MANUAL_REVIEW", "READY_FOR_ASSIGNMENT"]},
+    "categoryId": {"type": ["string", "null"]},
+    "urgency": {"enum": ["LOW", "NORMAL", "HIGH", "CRITICAL"]},
+    "requiredSkills": {"type": "array", "items": {"type": "string"}},
+    "missingFields": {"type": "array", "items": {"type": "string"}},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "evidenceDocIds": {"type": "array", "items": {"type": "string"}},
+    "reasonCodes": {"type": "array", "items": {"type": "string"}},
+    "issueSummary": {"type": "string"},
+    "extractedIssues": {"type": "array", "items": {"type": "string"}},
+    "language": {"enum": ["en", "bn", "mixed", "unknown"]},
+    "safetyFlags": {"type": "array", "items": {"type": "string"}},
+    "modelVersion": {"type": "string"}
+  }
+}

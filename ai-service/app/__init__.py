@@ -1,0 +1,1 @@
+"""Handyman AI service core."""

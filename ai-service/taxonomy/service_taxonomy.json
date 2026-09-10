@@ -1,0 +1,124 @@
+{
+  "version": "taxonomy-v2-mobile-categories",
+  "categories": [
+    {
+      "id": "plumbing",
+      "labelEn": "Plumbing",
+      "labelBn": "প্লাম্বিং",
+      "requiredSkills": ["plumbing"],
+      "keywords": ["plumbing", "plumber", "pipe", "tap", "faucet", "water leak", "প্লাম্বিং", "পাইপ", "কল", "পানি", "লিক", "pani leak"]
+    },
+    {
+      "id": "electrical",
+      "labelEn": "Electrical",
+      "labelBn": "ইলেকট্রিক্যাল",
+      "requiredSkills": ["electrical"],
+      "keywords": ["electrical", "electrician", "power", "socket", "outlet", "wall outlet", "wire", "sparking", "burning smell", "overheating", "ইলেকট্রিক", "বিদ্যুৎ", "তার", "সকেট", "স্পার্ক", "পোড়া গন্ধ", "current nai"]
+    },
+    {
+      "id": "cleaning",
+      "labelEn": "Cleaning",
+      "labelBn": "পরিষ্কার-পরিচ্ছন্নতা",
+      "requiredSkills": ["cleaning"],
+      "keywords": ["clean", "cleaning", "deep clean", "kitchen clean", "পরিষ্কার", "ক্লিনিং", "বাসা পরিষ্কার", "basha clean"]
+    },
+    {
+      "id": "appliance_repair",
+      "labelEn": "Appliance repair",
+      "labelBn": "গৃহস্থালি যন্ত্র মেরামত",
+      "requiredSkills": ["appliance_repair"],
+      "keywords": ["appliance", "fridge", "refrigerator", "washing machine", "oven", "ফ্রিজ", "ওয়াশিং মেশিন", "মেশিন", "fridge thanda na"]
+    },
+    {
+      "id": "painting",
+      "labelEn": "Painting and renovation",
+      "labelBn": "রং ও সংস্কার",
+      "requiredSkills": ["painting"],
+      "keywords": ["paint", "painting", "wall colour", "renovation", "রং", "পেইন্ট", "দেয়াল", "wall rong"]
+    },
+    {
+      "id": "ac_repair",
+      "labelEn": "A/C repair services",
+      "labelBn": "এসি মেরামত",
+      "requiredSkills": ["ac_repair"],
+      "keywords": ["a/c repair", "ac repair", "air conditioner", "air conditioning", "ac cooling", "এসি", "এয়ার কন্ডিশনার", "ac thanda na"]
+    },
+    {
+      "id": "beauty_wellness",
+      "labelEn": "Beauty and wellness",
+      "labelBn": "সৌন্দর্য ও সুস্থতা",
+      "requiredSkills": ["beauty_wellness"],
+      "keywords": ["beauty and wellness", "beauty service", "makeup", "facial", "spa", "সৌন্দর্য", "মেকআপ", "ফেসিয়াল", "স্পা"]
+    },
+    {
+      "id": "shifting",
+      "labelEn": "Shifting",
+      "labelBn": "বাসা বদল",
+      "requiredSkills": ["shifting"],
+      "keywords": ["shifting", "house moving", "home move", "move furniture", "packing and moving", "বাসা বদল", "জিনিসপত্র সরানো", "basha shift"]
+    },
+    {
+      "id": "mens_care_salon",
+      "labelEn": "Men's care and salon",
+      "labelBn": "পুরুষদের পরিচর্যা ও সেলুন",
+      "requiredSkills": ["mens_care_salon"],
+      "keywords": ["men's care", "mens care", "men's salon", "mens salon", "haircut", "shaving", "barber", "চুল কাটা", "শেভ", "সেলুন"]
+    },
+    {
+      "id": "health_care",
+      "labelEn": "Health and care",
+      "labelBn": "স্বাস্থ্য ও পরিচর্যা",
+      "requiredSkills": ["health_care"],
+      "keywords": ["health and care", "home care", "caregiver", "patient care", "elderly care", "স্বাস্থ্যসেবা", "রোগীর যত্ন", "বয়স্ক পরিচর্যা"]
+    },
+    {
+      "id": "electronics_repair",
+      "labelEn": "Electronics and gadget repair",
+      "labelBn": "ইলেকট্রনিক্স ও গ্যাজেট মেরামত",
+      "requiredSkills": ["electronics_repair"],
+      "keywords": ["electronics repair", "gadget repair", "phone repair", "mobile repair", "laptop repair", "ইলেকট্রনিক্স", "মোবাইল মেরামত", "ল্যাপটপ মেরামত"]
+    },
+    {
+      "id": "pest_control",
+      "labelEn": "Pest control",
+      "labelBn": "কীটপতঙ্গ নিয়ন্ত্রণ",
+      "requiredSkills": ["pest_control"],
+      "keywords": ["pest control", "cockroach", "termite", "rodent", "rats", "bed bugs", "কীটপতঙ্গ", "তেলাপোকা", "ইঁদুর", "উইপোকা"]
+    },
+    {
+      "id": "driver_service",
+      "labelEn": "Driver service",
+      "labelBn": "চালক সেবা",
+      "requiredSkills": ["driver_service"],
+      "keywords": ["driver service", "hire a driver", "personal driver", "chauffeur", "চালক", "ড্রাইভার", "driver dorkar"]
+    },
+    {
+      "id": "car_care",
+      "labelEn": "Car care services",
+      "labelBn": "গাড়ির যত্ন ও মেরামত",
+      "requiredSkills": ["car_care"],
+      "keywords": ["car care", "car service", "vehicle service", "car wash", "car mechanic", "গাড়ি সার্ভিস", "গাড়ি ধোয়া", "মেকানিক"]
+    },
+    {
+      "id": "trips_travel",
+      "labelEn": "Trips and travel",
+      "labelBn": "ভ্রমণ সেবা",
+      "requiredSkills": ["trips_travel"],
+      "keywords": ["trips and travel", "travel planning", "tour guide", "trip booking", "tour package", "ভ্রমণ", "ট্যুর", "ট্রিপ"]
+    },
+    {
+      "id": "car_rental",
+      "labelEn": "Car rental",
+      "labelBn": "গাড়ি ভাড়া",
+      "requiredSkills": ["car_rental"],
+      "keywords": ["car rental", "rent a car", "vehicle rental", "hire a car", "গাড়ি ভাড়া", "car vara"]
+    },
+    {
+      "id": "emergency_service",
+      "labelEn": "Emergency service",
+      "labelBn": "জরুরি সেবা",
+      "requiredSkills": ["emergency_service"],
+      "keywords": ["emergency service", "urgent assistance", "immediate help", "জরুরি সেবা", "জরুরি সাহায্য", "emergency help"]
+    }
+  ]
+}

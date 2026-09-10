@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import { ref, onValue } from "firebase/database";
 import { database } from "../firebase";
 import "../styles/DashboardContent.css";
-import userData from "../data/userData";
-
-import JobCategoryStats from "../components/JobCategoryStats"; 
 import StickyHeader from "../components/StickyHeader";
 
 import {

@@ -19,14 +19,6 @@ function Login() {
   const [passwordValid, setPasswordValid] = useState(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const currentUser = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("currentUser"));
-    } catch {
-      return null;
-    }
-  })();
-
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password) => password.length >= 6;
 

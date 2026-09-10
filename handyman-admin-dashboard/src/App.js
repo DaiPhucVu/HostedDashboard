@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
@@ -7,15 +7,12 @@ import HandymanVerification from "./pages/HandymanVerification";
 import UserVerification from "./pages/UserVerification";
 import UserManagement from "./pages/UserManagement";
 import JobManagement from "./pages/JobManagement";
-import AssignJob from "./pages/AssignJob";
 import ServiceAnalytics from "./pages/ServiceAnalytics";
 import UserEngagement from "./pages/UserEngagement";
 import AdminSettings from "./pages/AdminSettings";
 import SupportFeedback from "./pages/SupportFeedback";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
-
-import FirebaseTest from "./pages/FirebaseTest";
 
 // State Management
 import { UserProvider } from "./context/UserContext";
@@ -31,9 +28,6 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-
-        {/* Firebase Test Route (for testing only) */}
-        <Route path="/firebase-test" element={<FirebaseTest />} />
 
         {/* Protected Routes */}
         <Route
@@ -51,7 +45,7 @@ function App() {
                   <Route path="/user-verification" element={<UserVerification />} />
                   <Route path="/user-management" element={<UserManagement />} />
                   <Route path="/job-management" element={<JobManagement />} />
-                  <Route path="/assign-job" element={<AssignJob />} />
+                  <Route path="/assign-job" element={<Navigate to="/job-management" replace />} />
                   <Route path="/service-analytics" element={<ServiceAnalytics />} />
                   <Route path="/user-engagement" element={<UserEngagement />} />
                   <Route path="/admin-settings" element={<AdminSettings />} />

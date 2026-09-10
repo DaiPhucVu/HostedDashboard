@@ -10,7 +10,7 @@ import {
   Row,
   Col,
 } from "react-bootstrap";
-import { getDatabase, ref, onValue, update, set } from "firebase/database";
+import { getDatabase, ref, onValue, update } from "firebase/database";
 import PaginationControls from "../components/PaginationControls";
 import StickyHeader from "../components/StickyHeader";
 import ConfirmModal from "../components/ConfirmModal";
@@ -118,17 +118,6 @@ function HandymanVerification() {
       });
       setTimeout(() => setNotification({ show: false }), 4000);
     }
-  };
-
-  // Optional: When creating a new handyman, use this function!
-  const addNewHandyman = (handymanObj, newId) => {
-    const db = getDatabase();
-    const newHandymanRef = ref(db, `Handyman/${newId}`);
-    set(newHandymanRef, {
-      ...handymanObj,
-      idApprovedStatus: "pending",
-      certificateApprovedStatus: "pending",
-    });
   };
 
   const handleOpenVerificationModal = (handyman, type) => {
@@ -268,7 +257,6 @@ function HandymanVerification() {
     return statusMatch && searchMatch && inDateRange;
   });
 
-  const totalPages = Math.ceil(filteredData.length / entriesPerPage);
   const startIndex = (currentPage - 1) * entriesPerPage;
   const currentData = filteredData.slice(
     startIndex,
@@ -343,7 +331,7 @@ function HandymanVerification() {
 
   const DocStatusText = ({ status = "pending" }) => {
     const key = status?.toString().toLowerCase();
-    const { color, icon, label } = statusStyles[key] || statusStyles["pending"];
+    const { color, icon } = statusStyles[key] || statusStyles["pending"];
     return (
       <span
         style={{
