@@ -7,7 +7,8 @@
     "jobId", "triageStatus", "categoryId", "urgency", "requiredSkills",
     "missingFields", "confidence", "evidenceDocIds",
     "reasonCodes", "issueSummary", "extractedIssues", "language",
-    "safetyFlags", "modelVersion"
+    "safetyFlags", "modelVersion", "originalCategory", "semanticCategory",
+    "finalCategory", "categoryDecision", "overrideReason"
   ],
   "additionalProperties": false,
   "properties": {
@@ -24,6 +25,16 @@
     "extractedIssues": {"type": "array", "items": {"type": "string"}},
     "language": {"enum": ["en", "bn", "mixed", "unknown"]},
     "safetyFlags": {"type": "array", "items": {"type": "string"}},
-    "modelVersion": {"type": "string"}
+    "modelVersion": {"type": "string"},
+    "originalCategory": {"type": ["string", "null"]},
+    "semanticCategory": {"type": ["string", "null"]},
+    "finalCategory": {"type": ["string", "null"]},
+    "categoryDecision": {
+      "enum": [
+        "RULE_CLASSIFICATION", "CATEGORY_AGREEMENT", "APP_CATEGORY_FALLBACK",
+        "SEMANTIC_CLASSIFICATION", "SEMANTIC_OVERRIDE", "MANUAL_REVIEW"
+      ]
+    },
+    "overrideReason": {"type": ["string", "null"]}
   }
 }

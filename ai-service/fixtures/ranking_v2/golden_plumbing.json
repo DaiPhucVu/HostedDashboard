@@ -1,0 +1,129 @@
+{
+  "metadata": {
+    "datasetVersion": "ranking-v2-golden-1",
+    "sourceType": "SYNTHETIC_CONTRAST_CASE",
+    "purpose": "Verify that category-relevant experience and platform history affect ordering without bypassing eligibility rules.",
+    "labelMethod": "Expected order reviewed before running the ranking implementation."
+  },
+  "job": {
+    "jobId": "golden-plumbing-1",
+    "description": "Urgent leaking kitchen pipe",
+    "categoryHint": "plumbing",
+    "locationText": "Badda, Dhaka",
+    "latitude": 23.7806,
+    "longitude": 90.407,
+    "startAt": "2026-10-04T13:00:00+06:00"
+  },
+  "triage": {
+    "jobId": "golden-plumbing-1",
+    "triageStatus": "READY_FOR_ASSIGNMENT",
+    "categoryId": "plumbing",
+    "urgency": "HIGH",
+    "requiredSkills": ["plumbing"],
+    "missingFields": [],
+    "confidence": 0.95,
+    "evidenceDocIds": ["policy-plumbing"],
+    "reasonCodes": ["GOLDEN_CASE"],
+    "extractedIssues": ["leaking kitchen pipe"]
+  },
+  "providers": [
+    {
+      "providerId": "plumber-experienced",
+      "displayName": "Experienced Plumber",
+      "verified": true,
+      "skills": ["plumbing", "pipe_fitting"],
+      "languages": ["bn", "en"],
+      "available": true,
+      "latitude": 23.782,
+      "longitude": 90.409,
+      "serviceRadiusKm": 20,
+      "activeJobs": 0,
+      "maxConcurrentJobs": 3,
+      "averageRating": 4.8,
+      "reviewCount": 42,
+      "completionRate": 0.96,
+      "cancellationRate": 0.04,
+      "medianResponseMinutes": 18,
+      "yearsExperience": 15,
+      "completedJobs": 50,
+      "completedJobsByCategory": {"plumbing": 50},
+      "providerCancelledJobs": 2
+    },
+    {
+      "providerId": "plumber-junior",
+      "displayName": "Junior Plumber",
+      "verified": true,
+      "skills": ["plumbing"],
+      "languages": ["bn"],
+      "available": true,
+      "latitude": 23.785,
+      "longitude": 90.41,
+      "serviceRadiusKm": 20,
+      "activeJobs": 1,
+      "maxConcurrentJobs": 3,
+      "averageRating": 4.7,
+      "reviewCount": 8,
+      "completionRate": 0.88,
+      "cancellationRate": 0.12,
+      "medianResponseMinutes": 24,
+      "yearsExperience": 3,
+      "completedJobs": 7,
+      "completedJobsByCategory": {"plumbing": 7},
+      "providerCancelledJobs": 1
+    },
+    {
+      "providerId": "plumber-new",
+      "displayName": "New Platform Plumber",
+      "verified": true,
+      "skills": ["plumbing"],
+      "languages": ["bn", "en"],
+      "available": true,
+      "latitude": 23.783,
+      "longitude": 90.408,
+      "serviceRadiusKm": 20,
+      "activeJobs": 0,
+      "maxConcurrentJobs": 3,
+      "averageRating": 0,
+      "reviewCount": 0,
+      "completionRate": 0,
+      "cancellationRate": 0,
+      "medianResponseMinutes": 0,
+      "yearsExperience": 8,
+      "completedJobs": 0,
+      "completedJobsByCategory": {},
+      "providerCancelledJobs": 0
+    },
+    {
+      "providerId": "electrician-experienced",
+      "displayName": "Experienced Electrician",
+      "verified": true,
+      "skills": ["electrical"],
+      "languages": ["bn", "en"],
+      "available": true,
+      "latitude": 23.781,
+      "longitude": 90.408,
+      "serviceRadiusKm": 20,
+      "activeJobs": 0,
+      "maxConcurrentJobs": 3,
+      "averageRating": 4.9,
+      "reviewCount": 80,
+      "completionRate": 0.99,
+      "cancellationRate": 0.01,
+      "medianResponseMinutes": 8,
+      "yearsExperience": 20,
+      "completedJobs": 100,
+      "completedJobsByCategory": {"electrical": 100},
+      "providerCancelledJobs": 1
+    }
+  ],
+  "expected": {
+    "candidateOrder": [
+      "plumber-experienced",
+      "plumber-junior",
+      "plumber-new"
+    ],
+    "rejected": {
+      "electrician-experienced": ["MISSING_REQUIRED_SKILL"]
+    }
+  }
+}

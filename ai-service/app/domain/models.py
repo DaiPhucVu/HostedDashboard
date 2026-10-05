@@ -51,6 +51,15 @@ class ProviderProfile:
     completion_rate: float
     cancellation_rate: float
     median_response_minutes: float
+    years_experience: float = 0.0
+    years_experience_recorded: bool = False
+    completed_jobs: int = 0
+    completed_jobs_by_category: Dict[str, int] = field(default_factory=dict)
+    provider_cancelled_jobs: int = 0
+    location_source: str = "RECORDED_COORDINATES"
+    service_radius_recorded: bool = True
+    availability_recorded: bool = True
+    capacity_recorded: bool = True
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ProviderProfile":
@@ -71,6 +80,22 @@ class ProviderProfile:
             completion_rate=float(data["completionRate"]),
             cancellation_rate=float(data["cancellationRate"]),
             median_response_minutes=float(data["medianResponseMinutes"]),
+            years_experience=float(data.get("yearsExperience", 0)),
+            years_experience_recorded=bool(
+                data.get("yearsExperienceRecorded", "yearsExperience" in data)
+            ),
+            completed_jobs=int(data.get("completedJobs", 0)),
+            completed_jobs_by_category={
+                str(category): int(count)
+                for category, count in data.get("completedJobsByCategory", {}).items()
+            },
+            provider_cancelled_jobs=int(data.get("providerCancelledJobs", 0)),
+            location_source=str(
+                data.get("locationSource", "RECORDED_COORDINATES")
+            ),
+            service_radius_recorded=bool(data.get("serviceRadiusRecorded", True)),
+            availability_recorded=bool(data.get("availabilityRecorded", True)),
+            capacity_recorded=bool(data.get("capacityRecorded", True)),
         )
 
 
@@ -150,6 +175,11 @@ class TriageResult:
     language: str = "unknown"
     safety_flags: Tuple[str, ...] = field(default_factory=tuple)
     model_version: str = "rules-bm25-v1"
+    original_category: Optional[str] = None
+    semantic_category: Optional[str] = None
+    final_category: Optional[str] = None
+    category_decision: str = "RULE_CLASSIFICATION"
+    override_reason: Optional[str] = None
 
     def to_contract_dict(self) -> Dict[str, Any]:
         return {
@@ -167,6 +197,11 @@ class TriageResult:
             "language": self.language,
             "safetyFlags": list(self.safety_flags),
             "modelVersion": self.model_version,
+            "originalCategory": self.original_category,
+            "semanticCategory": self.semantic_category,
+            "finalCategory": self.final_category or self.category_id,
+            "categoryDecision": self.category_decision,
+            "overrideReason": self.override_reason,
         }
 
 
@@ -177,6 +212,7 @@ class CandidateScore:
     total_score: float
     score_breakdown: Dict[str, float]
     reason_codes: Tuple[str, ...]
+    evidence: Dict[str, Any] = field(default_factory=dict)
 
     def to_contract_dict(self) -> Dict[str, Any]:
         return {
@@ -185,6 +221,7 @@ class CandidateScore:
             "totalScore": self.total_score,
             "scoreBreakdown": self.score_breakdown,
             "reasonCodes": list(self.reason_codes),
+            "evidence": self.evidence,
         }
 
 
@@ -212,4 +249,30 @@ class RankingResult:
             "candidates": [item.to_contract_dict() for item in self.candidates],
             "alternatives": [item.to_contract_dict() for item in self.alternatives],
             "rejected": [item.to_contract_dict() for item in self.rejected],
+        }
+
+
+@dataclass(frozen=True)
+class AutoAssignmentDecision:
+    decision: str
+    provider_id: Optional[str]
+    selected_rank: Optional[int]
+    score: Optional[float]
+    runner_up_score: Optional[float]
+    score_margin: Optional[float]
+    minimum_score: float
+    minimum_margin: float
+    reason_codes: Tuple[str, ...]
+
+    def to_contract_dict(self) -> Dict[str, Any]:
+        return {
+            "decision": self.decision,
+            "providerId": self.provider_id,
+            "selectedRank": self.selected_rank,
+            "score": self.score,
+            "runnerUpScore": self.runner_up_score,
+            "scoreMargin": self.score_margin,
+            "minimumScore": self.minimum_score,
+            "minimumMargin": self.minimum_margin,
+            "reasonCodes": list(self.reason_codes),
         }

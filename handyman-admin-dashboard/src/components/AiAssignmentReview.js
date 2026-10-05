@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Alert, Button, ProgressBar, Spinner } from "react-bootstrap";
+import {
+  humanize,
+} from "../domain/assignmentPresentation";
+import ProviderMatchCard from "./ProviderMatchCard";
 
 const MATCHING_STAGES = [
   {
@@ -19,19 +23,10 @@ const MATCHING_STAGES = [
   },
   {
     title: "Ranking the best matches",
-    detail: "Comparing skills, performance, response time and workload.",
+    detail: "Comparing experience, job history, reviews, workload and distance.",
     startsAt: 15,
   },
 ];
-
-const FACTOR_LABELS = {
-  skillMatch: "Skills",
-  distance: "Distance",
-  availability: "Availability",
-  bayesianRating: "Rating",
-  reliability: "Reliability",
-  responseFairness: "Response & workload",
-};
 
 const tagPalette = {
   blue: { background: "#dceff7", border: "#a9d2e2", color: "#245f76" },
@@ -40,10 +35,7 @@ const tagPalette = {
   red: { background: "#ffd9d2", border: "#e8a79b", color: "#8d372b" },
 };
 
-const humanize = (value) => String(value || "").replaceAll("_", " ").toLowerCase();
 const urgencyTone = (urgency) => urgency === "CRITICAL" ? "red" : urgency === "HIGH" ? "yellow" : "green";
-const confidenceTone = (value) => value >= 0.8 ? "green" : value >= 0.6 ? "yellow" : "red";
-const progressVariant = (value) => value >= 0.8 ? "primary" : value >= 0.6 ? "warning" : "danger";
 const jobStatusTone = (status) => {
   const normalized = String(status || "OPEN").trim().toUpperCase();
   if (["DONE", "COMPLETED"].includes(normalized)) return "green";
@@ -70,31 +62,6 @@ function Tag({ tone = "blue", children }) {
     </span>
   );
 }
-
-function MatchPill({ value, alternative = false }) {
-  const tone = value >= 0.8 ? "#157963" : value >= 0.6 ? "#8a6816" : "#9c4035";
-  return (
-    <span className="bg-white rounded-pill fw-semibold" style={{
-      border: "1px solid #d7e2de",
-      boxShadow: "0 2px 8px rgba(35,65,57,.1)",
-      color: tone,
-      padding: "7px 12px",
-      whiteSpace: "nowrap",
-    }}>
-      {Math.round(value * 100)}% {alternative ? "relative fit" : "match"}
-    </span>
-  );
-}
-
-const rankCardStyle = (rank, selected) => {
-  const palette = ["#ccecdf", "#daf2e8", "#e5f6ef", "#eef9f5", "#f5fcf9"];
-  return {
-    backgroundColor: palette[Math.min(4, Math.max(0, rank - 1))],
-    borderColor: selected ? "#168873" : "#b8ded2",
-    boxShadow: selected ? "0 0 0 2px rgba(22,136,115,.18)" : "0 2px 7px rgba(35,65,57,.05)",
-    cursor: "pointer",
-  };
-};
 
 function AiMatchingLoader() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -219,14 +186,12 @@ export default function AiAssignmentReview({
         <Tag tone={jobStatusTone(jobStatus)}>Job status: {jobStatus || "Open"}</Tag>
         <Tag>Category: {triage.categoryId || "Unclear"}</Tag>
         <Tag tone={urgencyTone(triage.urgency)}>Urgency: {humanize(triage.urgency)}</Tag>
-        <Tag tone={confidenceTone(triage.confidence)}>Confidence: {Math.round(triage.confidence * 100)}%</Tag>
         <Tag tone={assignable ? "green" : "yellow"}>Status: {humanize(triage.triageStatus)}</Tag>
       </div>
 
       <div className="bg-white border rounded-3 px-3 py-2 mb-3">
         <div className="fw-semibold">AI interpretation</div>
         <div>{triage.issueSummary || "No summary returned."}</div>
-        <div className="small text-muted mt-1">Confidence means how certain AI is about the category, not the provider match.</div>
       </div>
 
       {triage.missingFields?.length > 0 && (
@@ -266,78 +231,17 @@ export default function AiAssignmentReview({
           ? `${provider.firstName || ""} ${provider.lastName || ""}`.trim() || provider.email
           : candidate.providerId;
         return (
-          <div
+          <ProviderMatchCard
             key={candidate.providerId}
-            role="button"
-            tabIndex={0}
-            aria-pressed={selected}
-            className="border rounded-3 p-3 mb-2"
-            style={{
-              ...rankCardStyle(candidate.rank, selected),
-              cursor: candidateSelectable ? "pointer" : "default",
-            }}
-            onClick={() => candidateSelectable && provider && onSelectProvider(provider)}
-            onKeyDown={(event) => {
-              if (candidateSelectable && provider && ["Enter", " "].includes(event.key)) {
-                event.preventDefault();
-                onSelectProvider(provider);
-              }
-            }}
-          >
-            <div className="d-flex justify-content-between align-items-start gap-3 mb-2">
-              <div>
-                <div className="fw-semibold">#{candidate.rank} {providerName}</div>
-                <div className="small text-muted">{candidate.reasonCodes.map(humanize).join(" · ")}</div>
-              </div>
-              <div className="d-flex align-items-center gap-2">
-                <MatchPill value={candidate.totalScore} alternative={showingAlternatives} />
-                {onViewProvider && (
-                  <Button
-                    size="sm"
-                    style={{
-                      minWidth: 76,
-                      borderRadius: 999,
-                      borderColor: "#9ecbdc",
-                      backgroundColor: "#eef7fb",
-                      color: "#1f6178",
-                    }}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      if (provider) onViewProvider(provider);
-                    }}
-                    disabled={!provider}
-                  >
-                    Profile
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  style={{
-                    minWidth: 82,
-                    borderRadius: 999,
-                    borderColor: "#168873",
-                    backgroundColor: selected ? "#168873" : "#fff",
-                    color: selected ? "#fff" : "#168873",
-                  }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    if (candidateSelectable && provider) onSelectProvider(provider);
-                  }}
-                  disabled={!candidateSelectable}
-                >
-                  {!candidateSelectable ? "Preview" : selected ? "Selected" : "Select"}
-                </Button>
-              </div>
-            </div>
-            <div className="row g-2">
-              {Object.entries(candidate.scoreBreakdown).map(([name, value]) => (
-                <div className="col-md-6" key={name}>
-                  <div className="d-flex justify-content-between small"><span>{FACTOR_LABELS[name] || humanize(name)}</span><span>{Math.round(value * 100)}%</span></div>
-                  <ProgressBar variant={progressVariant(value)} now={value * 100} style={{ height: 6 }} />
-                </div>
-              ))}
-            </div>
-          </div>
+            candidate={candidate}
+            provider={provider}
+            providerName={providerName}
+            selected={selected}
+            selectable={candidateSelectable}
+            alternative={showingAlternatives}
+            onSelectProvider={onSelectProvider}
+            onViewProvider={onViewProvider}
+          />
         );
       })}
     </section>

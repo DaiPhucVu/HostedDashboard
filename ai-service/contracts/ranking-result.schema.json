@@ -12,13 +12,14 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["providerId", "rank", "totalScore", "scoreBreakdown", "reasonCodes"],
+        "required": ["providerId", "rank", "totalScore", "scoreBreakdown", "reasonCodes", "evidence"],
         "properties": {
           "providerId": {"type": "string"},
           "rank": {"type": "integer", "minimum": 1},
           "totalScore": {"type": "number", "minimum": 0, "maximum": 1},
           "scoreBreakdown": {"type": "object", "additionalProperties": {"type": "number"}},
-          "reasonCodes": {"type": "array", "items": {"type": "string"}}
+          "reasonCodes": {"type": "array", "items": {"type": "string"}},
+          "evidence": {"type": "object"}
         }
       }
     },
@@ -26,13 +27,14 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["providerId", "rank", "totalScore", "scoreBreakdown", "reasonCodes"],
+        "required": ["providerId", "rank", "totalScore", "scoreBreakdown", "reasonCodes", "evidence"],
         "properties": {
           "providerId": {"type": "string"},
           "rank": {"type": "integer", "minimum": 1},
           "totalScore": {"type": "number", "minimum": 0, "maximum": 1},
           "scoreBreakdown": {"type": "object", "additionalProperties": {"type": "number"}},
-          "reasonCodes": {"type": "array", "items": {"type": "string"}}
+          "reasonCodes": {"type": "array", "items": {"type": "string"}},
+          "evidence": {"type": "object"}
         }
       }
     },

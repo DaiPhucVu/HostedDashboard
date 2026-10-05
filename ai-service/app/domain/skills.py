@@ -4,44 +4,83 @@ from typing import Iterable, Set
 
 CATEGORY_SKILL_ALIASES = {
     "plumbing": {
-        "plumbing", "plumber", "pipe_fitting", "faucet_repair", "drain_repair",
+        "plumbing", "plumber", "pipe_fitting", "pipe_repair", "faucet_repair",
+        "tap_repair", "drain_repair", "drain_cleaning", "toilet_repair",
+        "sink_repair", "leak_repair", "bathroom_plumbing", "water_line_repair",
     },
-    "electrical": {"electrical", "electrician", "wiring", "socket_repair"},
-    "cleaning": {"cleaning", "cleaner", "deep_cleaning", "house_cleaning"},
+    "electrical": {
+        "electrical", "electrician", "wiring", "socket_repair", "outlet_repair",
+        "switch_repair", "lighting", "light_installation", "circuit_breaker",
+        "fan_installation", "electrical_installation", "power_fault",
+    },
+    "cleaning": {
+        "cleaning", "cleaner", "deep_cleaning", "house_cleaning", "home_cleaning",
+        "office_cleaning", "kitchen_cleaning", "bathroom_cleaning", "carpet_cleaning",
+        "window_cleaning", "move_out_cleaning",
+    },
     "appliance_repair": {
         "appliance_repair", "fridge_repair", "refrigerator_repair",
-        "washing_machine_repair", "oven_repair",
+        "washing_machine_repair", "oven_repair", "microwave_repair",
+        "dishwasher_repair", "dryer_repair", "freezer_repair", "cooker_repair",
+        "water_heater_repair",
     },
-    "painting": {"painting", "painter", "wall_painting", "renovation"},
+    "painting": {
+        "painting", "painter", "wall_painting", "house_painting", "interior_painting",
+        "exterior_painting", "renovation", "home_renovation", "wallpaper",
+        "plastering",
+    },
     "ac_repair": {
         "ac_repair", "air_conditioning", "hvac", "air_conditioner_repair",
+        "ac_installation", "ac_servicing", "ac_cleaning", "ac_gas_refill",
     },
     "beauty_wellness": {
         "beauty_wellness", "beautician", "makeup", "makeup_artist", "facial",
-        "spa", "skincare", "massage", "wellness",
+        "spa", "skincare", "massage", "wellness", "manicure", "pedicure",
+        "waxing", "beauty_treatment", "hair_styling",
     },
-    "shifting": {"shifting", "house_moving", "moving", "packing", "mover"},
+    "shifting": {
+        "shifting", "house_moving", "home_moving", "moving", "packing", "mover",
+        "furniture_moving", "office_relocation", "loading", "unloading",
+    },
     "mens_care_salon": {
         "mens_care_salon", "barber", "mens_haircut", "haircut", "shaving",
-        "grooming",
+        "grooming", "beard_trim", "mens_grooming", "mens_hair_styling",
+        "salon_service",
     },
     "health_care": {
         "health_care", "caregiver", "home_care", "patient_care", "elderly_care",
-        "nursing",
+        "nursing", "home_nursing", "physiotherapy", "disability_care",
     },
     "electronics_repair": {
         "electronics_repair", "gadget_repair", "phone_repair", "mobile_repair",
-        "laptop_repair",
+        "laptop_repair", "computer_repair", "tablet_repair", "tv_repair",
+        "screen_replacement", "device_repair",
     },
     "pest_control": {
         "pest_control", "cockroach_control", "termite_control", "rodent_control",
-        "bed_bug_control",
+        "rat_control", "bed_bug_control", "mosquito_control", "fumigation",
     },
-    "driver_service": {"driver_service", "driver", "personal_driver", "chauffeur"},
-    "car_care": {"car_care", "car_wash", "car_mechanic", "vehicle_service"},
-    "trips_travel": {"trips_travel", "travel_planning", "tour_guide", "travel_agent"},
-    "car_rental": {"car_rental", "vehicle_rental", "rent_a_car"},
-    "emergency_service": {"emergency_service", "emergency_response", "urgent_assistance"},
+    "driver_service": {
+        "driver_service", "driver", "personal_driver", "chauffeur", "driving_service",
+        "designated_driver",
+    },
+    "car_care": {
+        "car_care", "car_wash", "car_mechanic", "vehicle_service", "vehicle_repair",
+        "car_repair", "oil_change", "tyre_service", "tire_service", "battery_service",
+        "car_detailing",
+    },
+    "trips_travel": {
+        "trips_travel", "travel_planning", "tour_guide", "travel_agent", "trip_booking",
+        "tour_package", "ticket_booking", "hotel_booking",
+    },
+    "car_rental": {
+        "car_rental", "vehicle_rental", "rent_a_car", "hire_a_car", "car_hire",
+        "self_drive_rental",
+    },
+    "emergency_service": {
+        "emergency_service", "emergency_response", "urgent_assistance", "immediate_help",
+        "roadside_assistance",
+    },
 }
 
 

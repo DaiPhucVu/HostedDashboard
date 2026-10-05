@@ -2,11 +2,10 @@
 
 ## ADR-001: Local-first repository ports
 
-Production Firebase access is unavailable. Domain services depend on repository
-interfaces. Fixture and SQLite implementations are used for evaluation;
-PostgreSQL is the deployed persistence target. An authorized team member can add
-a Firebase/API synchronisation adapter later without changing triage or ranking
-logic.
+Domain services depend on repository interfaces. Fixture and SQLite
+implementations are used for evaluation, while a Firebase REST adapter connects
+the current three-client workflow. PostgreSQL remains the production persistence
+target once the team is ready to move concurrent workflow state behind an API.
 
 ## ADR-002: FTS5/BM25 is the lexical baseline
 
@@ -26,11 +25,12 @@ The MVP uses hard filters plus a weighted score. LightGBM/LambdaMART is deferred
 until the project has sufficient admin decisions and task outcomes to create
 credible labels.
 
-## ADR-005: Human approval before automatic assignment
+## ADR-005: Threshold-gated automatic assignment
 
-The Dashboard owns administrator review. Automatic assignment is deferred until
-classification, urgency, completeness, provider-fit, fairness, and outcome
-metrics meet agreed thresholds.
+Manual assignment remains available. In automatic mode, only jobs created after
+the mode was enabled can be assigned. The worker selects rank one only when
+triage is complete, the candidate passes every hard rule, and the score is
+strictly above 0.60. Every other result returns to administrator review.
 
 ## ADR-006: One canonical Job node
 
@@ -62,12 +62,12 @@ ready. Runtime inference failures use the deterministic rules fallback.
 
 ## ADR-010: Existing Firebase is the first integration bridge
 
-For the first three-client demonstration, Android continues to create and read
-the existing `Job` records and the Dashboard continues to write assignment state
-to the same records. The AI service remains responsible only for semantic
-triage, hard provider filtering, and ranking. This avoids a second Job store and
-sync logic while Firebase server credentials are unavailable. Moving concurrent
-assignment state behind the PostgreSQL service remains the production target.
+For the first three-client demonstration, Android, Dashboard, and the local AI
+worker use the existing Firebase records. The worker performs semantic triage,
+hard filtering, ranking, the automatic-assignment gate, assignment audit, and
+mobile index updates. ETags, a worker lease, and recoverable indexing prevent
+duplicate local execution. A managed service identity and moving concurrent
+assignment state behind the PostgreSQL service remain production work.
 
 ## ADR-011: Distance fallback is informational, not eligible
 
@@ -86,10 +86,10 @@ availability, capacity, and service radius remain hard assignment constraints.
 This prevents broad requests such as Beauty and Wellness or Appliance Repair from
 returning no candidates when a relevant specialist exists.
 
-## ADR-013: The App category anchors semantic triage
+## ADR-013: Category changes require two signals
 
-When the customer selected a supported App category, that category remains the
-service family used for provider matching. Qwen extracts intent details, urgency,
-missing information and specialties, but cannot replace the selected family.
-Jobs without a valid category continue to rely on grounded semantic or rule
-classification.
+The App category is a hint. Qwen may replace it only when confidence is at least
+0.80 and a deterministic description rule selects the same closed-taxonomy
+category. Other conflicts require manual review. The final category drives
+provider filtering and ranking, and the decision is stored in the assignment
+audit.

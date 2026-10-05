@@ -26,6 +26,11 @@ def make_handler(
     cors_origin: str,
     assignment_repository: Optional[AssignmentRepository] = None,
 ) -> Type[BaseHTTPRequestHandler]:
+    allowed_origins = {
+        origin.strip()
+        for origin in cors_origin.split(",")
+        if origin.strip()
+    }
     assignments = assignment_repository or LocalAssignmentRepository(service.providers)
     assignment_command_schema = load_schema(
         service.root / "contracts" / "assignment-command.schema.json"
@@ -40,22 +45,34 @@ def make_handler(
     class ApiHandler(BaseHTTPRequestHandler):
         server_version = "HandymanAI/0.1"
 
+        def _cors_origin(self) -> Optional[str]:
+            request_origin = self.headers.get("Origin")
+            if request_origin in allowed_origins:
+                return request_origin
+            if request_origin is None and allowed_origins:
+                return sorted(allowed_origins)[0]
+            return None
+
+        def _write_cors_headers(self) -> None:
+            origin = self._cors_origin()
+            if origin:
+                self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
+
         def _write_json(self, status: int, payload: Dict[str, Any]) -> None:
             body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
-            self.send_header("Access-Control-Allow-Origin", cors_origin)
-            self.send_header("Vary", "Origin")
+            self._write_cors_headers()
             self.end_headers()
             self.wfile.write(body)
 
         def do_OPTIONS(self) -> None:
             self.send_response(204)
-            self.send_header("Access-Control-Allow-Origin", cors_origin)
+            self._write_cors_headers()
             self.send_header("Access-Control-Allow-Headers", "Content-Type")
             self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
-            self.send_header("Vary", "Origin")
             self.end_headers()
 
         def do_GET(self) -> None:

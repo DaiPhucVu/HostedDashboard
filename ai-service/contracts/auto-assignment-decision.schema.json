@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://handyman.local/contracts/auto-assignment-decision.schema.json",
+  "title": "AutoAssignmentDecision",
+  "type": "object",
+  "required": [
+    "decision",
+    "providerId",
+    "selectedRank",
+    "score",
+    "runnerUpScore",
+    "scoreMargin",
+    "minimumScore",
+    "minimumMargin",
+    "reasonCodes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "decision": {"enum": ["AUTO_ASSIGN", "MANUAL_REVIEW"]},
+    "providerId": {"type": ["string", "null"]},
+    "selectedRank": {"type": ["integer", "null"], "minimum": 1},
+    "score": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "runnerUpScore": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "scoreMargin": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "minimumScore": {"type": "number", "minimum": 0, "maximum": 1},
+    "minimumMargin": {"type": "number", "minimum": 0, "maximum": 1},
+    "reasonCodes": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+  }
+}

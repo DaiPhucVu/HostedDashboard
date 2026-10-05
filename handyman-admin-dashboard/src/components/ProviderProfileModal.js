@@ -28,9 +28,9 @@ function SkillTags({ values, emptyText = "Not provided" }) {
   );
 }
 
-export default function ProviderProfileModal({ show, onHide, provider, jobs = [] }) {
+export default function ProviderProfileModal({ show, onHide, provider, jobs = [], reviews = [] }) {
   if (!provider) return null;
-  const profile = buildProviderProfile(provider, jobs);
+  const profile = buildProviderProfile(provider, jobs, reviews);
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered>
@@ -49,7 +49,7 @@ export default function ProviderProfileModal({ show, onHide, provider, jobs = []
             {profile.availabilityStatus}
           </Badge>
           <Badge bg="light" text="dark" className="border rounded-pill px-3 py-2">
-            {profile.activeJobs}{profile.maxConcurrentJobs !== null ? `/${profile.maxConcurrentJobs}` : ""} active jobs
+            {profile.activeJobs}/{profile.maxConcurrentJobs} active jobs
           </Badge>
           <Badge bg="light" text="dark" className="border rounded-pill px-3 py-2">
             {profile.reviewCount > 0 && Number.isFinite(profile.averageRating)
@@ -81,7 +81,7 @@ export default function ProviderProfileModal({ show, onHide, provider, jobs = []
               <Detail label="Location">{valueOrMissing(profile.location)}</Detail>
               <Detail label="Recorded service radius">{valueOrMissing(profile.serviceRadiusKm, " km")}</Detail>
               <Detail label="Current workload">
-                {profile.activeJobs} active{profile.maxConcurrentJobs !== null ? ` of ${profile.maxConcurrentJobs} maximum` : " · maximum not recorded"}
+                {profile.activeJobs} active of {profile.maxConcurrentJobs} maximum
               </Detail>
             </div>
           </Col>
@@ -89,8 +89,9 @@ export default function ProviderProfileModal({ show, onHide, provider, jobs = []
             <div className="border rounded-3 p-3 h-100">
               <h6>Firebase job history</h6>
               <Detail label="Completed jobs">{profile.completedJobs}</Detail>
-              <Detail label="Cancelled jobs currently linked">{profile.cancelledJobs}</Detail>
-              <Detail label="Ratings">
+              <Detail label="Provider-cancelled jobs">{profile.providerCancelledJobs}</Detail>
+              <Detail label="Other or unattributed cancellations">{profile.unattributedCancelledJobs}</Detail>
+              <Detail label="Valid customer ratings">
                 {profile.reviewCount > 0 && Number.isFinite(profile.averageRating)
                   ? `${profile.averageRating.toFixed(1)} from ${profile.reviewCount} reviews`
                   : "No recorded ratings"}
@@ -100,7 +101,7 @@ export default function ProviderProfileModal({ show, onHide, provider, jobs = []
         </Row>
 
         <div className="small text-muted mt-3">
-          All values shown here come from the Firebase Handyman and Job records. Missing values are not inferred by AI.
+          Profile details come from Firebase Handyman records. Work history and ratings are derived from linked Firebase history and customer Review records; missing values are not inferred.
         </div>
       </Modal.Body>
       <Modal.Footer>

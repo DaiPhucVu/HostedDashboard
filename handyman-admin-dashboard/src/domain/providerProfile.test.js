@@ -21,6 +21,8 @@ test("builds a manager-facing profile only from Firebase provider and job fields
     { jobId: "active", assignedTo: "provider-1", jobStatus: "Offered" },
     { jobId: "done", assignedTo: "provider-1", jobStatus: "Done" },
     { jobId: "other", assignedTo: "provider-2", jobStatus: "Offered" },
+  ], [
+    { jobId: "done", handymanId: "provider-1", reviewerType: "customer", rating: 4.5 },
   ]);
 
   expect(profile).toMatchObject({
@@ -31,6 +33,8 @@ test("builds a manager-facing profile only from Firebase provider and job fields
     certificateTypes: ["Electrical licence"],
     activeJobs: 1,
     completedJobs: 1,
+    averageRating: 4.5,
+    reviewCount: 1,
     location: "Gulshan, Dhaka",
   });
 });
@@ -43,7 +47,7 @@ test("does not expose certificate URLs as profile text", () => {
 
   expect(profile.certificateTypes).toEqual(["2 uploaded documents"]);
   expect(profile.serviceRadiusKm).toBeNull();
-  expect(profile.maxConcurrentJobs).toBeNull();
+  expect(profile.maxConcurrentJobs).toBe(3);
   expect(profile.availabilityStatus).toBe("Not recorded");
 });
 
@@ -55,4 +59,19 @@ test("shows legacy trade and specialty fields in the manager profile", () => {
   });
 
   expect(profile.skills).toEqual(["Beauty and Wellness", "Facial", "Spa"]);
+});
+
+test("does not treat customer cancellation or profile aggregates as provider performance", () => {
+  const profile = buildProviderProfile({
+    handymanId: "provider-1",
+    averageRating: 5,
+    reviewCount: 99,
+  }, [
+    { jobId: "provider-cancel", assignedTo: "provider-1", jobStatus: "Cancelled", cancelledByType: "provider" },
+    { jobId: "customer-cancel", assignedTo: "provider-1", jobStatus: "Cancelled", cancelledByType: "customer" },
+  ]);
+
+  expect(profile.reviewCount).toBe(0);
+  expect(profile.providerCancelledJobs).toBe(1);
+  expect(profile.unattributedCancelledJobs).toBe(1);
 });

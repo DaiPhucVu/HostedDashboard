@@ -1,0 +1,1550 @@
+[
+  {
+    "jobId": "case-plumbing-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "plumbing",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-plumbing-01",
+      "eval-plumbing-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-plumbing-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "plumbing",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-plumbing-01",
+      "eval-plumbing-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-plumbing-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "plumbing",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-plumbing-01",
+      "eval-plumbing-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-plumbing-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "plumbing",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-plumbing-01",
+      "eval-plumbing-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-plumbing-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "plumbing",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-plumbing-01",
+      "eval-plumbing-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-plumbing-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "incomplete",
+    "expectedCategoryId": "plumbing",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "NEEDS_INFO",
+    "expectedMissingFields": [
+      "location"
+    ],
+    "relevantProviderIds": [
+      "eval-plumbing-01",
+      "eval-plumbing-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electrical-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "electrical",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-electrical-01",
+      "eval-electrical-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electrical-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "electrical",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-electrical-01",
+      "eval-electrical-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electrical-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "electrical",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-electrical-01",
+      "eval-electrical-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electrical-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "electrical",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-electrical-01",
+      "eval-electrical-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electrical-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "incomplete",
+    "expectedCategoryId": "electrical",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "NEEDS_INFO",
+    "expectedMissingFields": [
+      "schedule"
+    ],
+    "relevantProviderIds": [
+      "eval-electrical-01",
+      "eval-electrical-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electrical-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "electrical",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-electrical-01",
+      "eval-electrical-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-cleaning-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "cleaning",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-cleaning-01",
+      "eval-cleaning-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-cleaning-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "cleaning",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-cleaning-01",
+      "eval-cleaning-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-cleaning-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "cleaning",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-cleaning-01",
+      "eval-cleaning-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-cleaning-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "cleaning",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-cleaning-01",
+      "eval-cleaning-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-cleaning-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "cleaning",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-cleaning-01",
+      "eval-cleaning-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-cleaning-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "cleaning",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-cleaning-01",
+      "eval-cleaning-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-appliance_repair-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "appliance_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-appliance_repair-01",
+      "eval-appliance_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-appliance_repair-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "appliance_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-appliance_repair-01",
+      "eval-appliance_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-appliance_repair-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "appliance_repair",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-appliance_repair-01",
+      "eval-appliance_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-appliance_repair-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "appliance_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-appliance_repair-01",
+      "eval-appliance_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-appliance_repair-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "appliance_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-appliance_repair-01",
+      "eval-appliance_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-appliance_repair-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "appliance_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-appliance_repair-01",
+      "eval-appliance_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-painting-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "painting",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-painting-01",
+      "eval-painting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-painting-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "painting",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-painting-01",
+      "eval-painting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-painting-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "painting",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-painting-01",
+      "eval-painting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-painting-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "painting",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-painting-01",
+      "eval-painting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-painting-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "painting",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-painting-01",
+      "eval-painting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-painting-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "incomplete",
+    "expectedCategoryId": "painting",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "NEEDS_INFO",
+    "expectedMissingFields": [
+      "location"
+    ],
+    "relevantProviderIds": [
+      "eval-painting-01",
+      "eval-painting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-ac_repair-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "ac_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-ac_repair-01",
+      "eval-ac_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-ac_repair-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "ac_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-ac_repair-01",
+      "eval-ac_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-ac_repair-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "ac_repair",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-ac_repair-01",
+      "eval-ac_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-ac_repair-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "ac_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-ac_repair-01",
+      "eval-ac_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-ac_repair-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "incomplete",
+    "expectedCategoryId": "ac_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "NEEDS_INFO",
+    "expectedMissingFields": [
+      "schedule"
+    ],
+    "relevantProviderIds": [
+      "eval-ac_repair-01",
+      "eval-ac_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-ac_repair-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "ac_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-ac_repair-01",
+      "eval-ac_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-beauty_wellness-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "beauty_wellness",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-beauty_wellness-01",
+      "eval-beauty_wellness-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-beauty_wellness-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "beauty_wellness",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-beauty_wellness-01",
+      "eval-beauty_wellness-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-beauty_wellness-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "beauty_wellness",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-beauty_wellness-01",
+      "eval-beauty_wellness-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-beauty_wellness-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "beauty_wellness",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-beauty_wellness-01",
+      "eval-beauty_wellness-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-beauty_wellness-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "beauty_wellness",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-beauty_wellness-01",
+      "eval-beauty_wellness-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-beauty_wellness-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "beauty_wellness",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-beauty_wellness-01",
+      "eval-beauty_wellness-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-shifting-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "shifting",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-shifting-01",
+      "eval-shifting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-shifting-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "shifting",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-shifting-01",
+      "eval-shifting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-shifting-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "shifting",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-shifting-01",
+      "eval-shifting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-shifting-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "shifting",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-shifting-01",
+      "eval-shifting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-shifting-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "shifting",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-shifting-01",
+      "eval-shifting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-shifting-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "shifting",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-shifting-01",
+      "eval-shifting-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-mens_care_salon-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "mens_care_salon",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-mens_care_salon-01",
+      "eval-mens_care_salon-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-mens_care_salon-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "mens_care_salon",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-mens_care_salon-01",
+      "eval-mens_care_salon-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-mens_care_salon-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "mens_care_salon",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-mens_care_salon-01",
+      "eval-mens_care_salon-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-mens_care_salon-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "mens_care_salon",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-mens_care_salon-01",
+      "eval-mens_care_salon-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-mens_care_salon-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "mens_care_salon",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-mens_care_salon-01",
+      "eval-mens_care_salon-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-mens_care_salon-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "incomplete",
+    "expectedCategoryId": "mens_care_salon",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "NEEDS_INFO",
+    "expectedMissingFields": [
+      "location"
+    ],
+    "relevantProviderIds": [
+      "eval-mens_care_salon-01",
+      "eval-mens_care_salon-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-health_care-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "health_care",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-health_care-01",
+      "eval-health_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-health_care-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "health_care",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-health_care-01",
+      "eval-health_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-health_care-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "health_care",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-health_care-01",
+      "eval-health_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-health_care-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "health_care",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-health_care-01",
+      "eval-health_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-health_care-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "incomplete",
+    "expectedCategoryId": "health_care",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "NEEDS_INFO",
+    "expectedMissingFields": [
+      "schedule"
+    ],
+    "relevantProviderIds": [
+      "eval-health_care-01",
+      "eval-health_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-health_care-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "health_care",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-health_care-01",
+      "eval-health_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electronics_repair-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "electronics_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-electronics_repair-01",
+      "eval-electronics_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electronics_repair-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "electronics_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-electronics_repair-01",
+      "eval-electronics_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electronics_repair-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "electronics_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-electronics_repair-01",
+      "eval-electronics_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electronics_repair-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "electronics_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-electronics_repair-01",
+      "eval-electronics_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electronics_repair-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "electronics_repair",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-electronics_repair-01",
+      "eval-electronics_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-electronics_repair-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "electronics_repair",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-electronics_repair-01",
+      "eval-electronics_repair-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-pest_control-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "pest_control",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-pest_control-01",
+      "eval-pest_control-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-pest_control-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "pest_control",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-pest_control-01",
+      "eval-pest_control-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-pest_control-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "pest_control",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-pest_control-01",
+      "eval-pest_control-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-pest_control-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "pest_control",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-pest_control-01",
+      "eval-pest_control-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-pest_control-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "pest_control",
+    "expectedUrgency": "HIGH",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-pest_control-01",
+      "eval-pest_control-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-pest_control-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "pest_control",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-pest_control-01",
+      "eval-pest_control-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-driver_service-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "driver_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-driver_service-01",
+      "eval-driver_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-driver_service-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "driver_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-driver_service-01",
+      "eval-driver_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-driver_service-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "driver_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-driver_service-01",
+      "eval-driver_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-driver_service-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "driver_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-driver_service-01",
+      "eval-driver_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-driver_service-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "driver_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-driver_service-01",
+      "eval-driver_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-driver_service-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "incomplete",
+    "expectedCategoryId": "driver_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "NEEDS_INFO",
+    "expectedMissingFields": [
+      "location"
+    ],
+    "relevantProviderIds": [
+      "eval-driver_service-01",
+      "eval-driver_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_care-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "car_care",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-car_care-01",
+      "eval-car_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_care-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "car_care",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-car_care-01",
+      "eval-car_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_care-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "car_care",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-car_care-01",
+      "eval-car_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_care-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "car_care",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-car_care-01",
+      "eval-car_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_care-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "incomplete",
+    "expectedCategoryId": "car_care",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "NEEDS_INFO",
+    "expectedMissingFields": [
+      "schedule"
+    ],
+    "relevantProviderIds": [
+      "eval-car_care-01",
+      "eval-car_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_care-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "specific",
+    "expectedCategoryId": "car_care",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-car_care-01",
+      "eval-car_care-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-trips_travel-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "trips_travel",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-trips_travel-01",
+      "eval-trips_travel-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-trips_travel-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "trips_travel",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-trips_travel-01",
+      "eval-trips_travel-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-trips_travel-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "trips_travel",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-trips_travel-01",
+      "eval-trips_travel-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-trips_travel-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "trips_travel",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-trips_travel-01",
+      "eval-trips_travel-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-trips_travel-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "trips_travel",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-trips_travel-01",
+      "eval-trips_travel-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-trips_travel-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "specific",
+    "expectedCategoryId": "trips_travel",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-trips_travel-01",
+      "eval-trips_travel-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_rental-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "car_rental",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-car_rental-01",
+      "eval-car_rental-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_rental-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "car_rental",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-car_rental-01",
+      "eval-car_rental-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_rental-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "car_rental",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-car_rental-01",
+      "eval-car_rental-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_rental-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "car_rental",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-car_rental-01",
+      "eval-car_rental-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_rental-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "car_rental",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-car_rental-01",
+      "eval-car_rental-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-car_rental-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "specific",
+    "expectedCategoryId": "car_rental",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-car_rental-01",
+      "eval-car_rental-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-emergency_service-01",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "broad",
+    "expectedCategoryId": "emergency_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-emergency_service-01",
+      "eval-emergency_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-emergency_service-02",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "en",
+    "caseType": "specific",
+    "expectedCategoryId": "emergency_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-emergency_service-01",
+      "eval-emergency_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-emergency_service-03",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "broad",
+    "expectedCategoryId": "emergency_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-emergency_service-01",
+      "eval-emergency_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-emergency_service-04",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "bn",
+    "caseType": "specific",
+    "expectedCategoryId": "emergency_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-emergency_service-01",
+      "eval-emergency_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-emergency_service-05",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "broad",
+    "expectedCategoryId": "emergency_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "READY_FOR_ASSIGNMENT",
+    "expectedMissingFields": [],
+    "relevantProviderIds": [
+      "eval-emergency_service-01",
+      "eval-emergency_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  },
+  {
+    "jobId": "case-emergency_service-06",
+    "sourceType": "SYNTHETIC_REVIEWED_CASE",
+    "language": "mixed",
+    "caseType": "incomplete",
+    "expectedCategoryId": "emergency_service",
+    "expectedUrgency": "NORMAL",
+    "expectedTriageStatus": "NEEDS_INFO",
+    "expectedMissingFields": [
+      "location"
+    ],
+    "relevantProviderIds": [
+      "eval-emergency_service-01",
+      "eval-emergency_service-02"
+    ],
+    "labelStatus": "REQUIRES_TWO_REVIEWERS"
+  }
+]

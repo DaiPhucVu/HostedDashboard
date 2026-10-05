@@ -25,6 +25,18 @@
     "reviewCount": {"type": "integer", "minimum": 0},
     "completionRate": {"type": "number", "minimum": 0, "maximum": 1},
     "cancellationRate": {"type": "number", "minimum": 0, "maximum": 1},
-    "medianResponseMinutes": {"type": "number", "minimum": 0}
+    "medianResponseMinutes": {"type": "number", "minimum": 0},
+    "yearsExperience": {"type": "number", "minimum": 0},
+    "yearsExperienceRecorded": {"type": "boolean"},
+    "completedJobs": {"type": "integer", "minimum": 0},
+    "completedJobsByCategory": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "providerCancelledJobs": {"type": "integer", "minimum": 0},
+    "locationSource": {"type": "string"},
+    "serviceRadiusRecorded": {"type": "boolean"},
+    "availabilityRecorded": {"type": "boolean"},
+    "capacityRecorded": {"type": "boolean"}
   }
 }

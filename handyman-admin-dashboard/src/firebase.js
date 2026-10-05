@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getDatabase } from "firebase/database";
+import { connectAuthEmulator, getAuth } from "firebase/auth";
+import { connectDatabaseEmulator, getDatabase } from "firebase/database";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
@@ -18,6 +18,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
+
+const databaseEmulatorHost = process.env.REACT_APP_FIREBASE_DATABASE_EMULATOR_HOST;
+if (databaseEmulatorHost) {
+  const [host, port = "9000"] = databaseEmulatorHost.split(":");
+  connectDatabaseEmulator(database, host, Number(port));
+}
+
+const authEmulatorUrl = process.env.REACT_APP_FIREBASE_AUTH_EMULATOR_URL;
+if (authEmulatorUrl) {
+  connectAuthEmulator(auth, authEmulatorUrl, { disableWarnings: true });
+}
+
 const storage = getStorage(app);
 const db = getFirestore(app);
 

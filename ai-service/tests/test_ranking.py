@@ -2,6 +2,7 @@ import unittest
 from dataclasses import replace
 from pathlib import Path
 
+from app.domain.skills import CATEGORY_SKILL_ALIASES
 from app.domain.models import JobInput, ProviderProfile, TriageResult
 from app.ranking.weighted import WeightedProviderRanker
 from app.repositories.fixtures import FixtureRepository
@@ -176,43 +177,27 @@ class RankingTests(unittest.TestCase):
         self.assertEqual((), result.candidates)
         self.assertEqual(("MISSING_REQUIRED_SKILL",), result.rejected[0].reason_codes)
 
-    def test_every_service_family_accepts_a_related_specialty_provider(self):
-        specialties = {
-            "plumbing": "pipe_fitting",
-            "electrical": "wiring",
-            "cleaning": "deep_cleaning",
-            "appliance_repair": "fridge_repair",
-            "painting": "renovation",
-            "ac_repair": "hvac",
-            "beauty_wellness": "facial",
-            "shifting": "packing",
-            "mens_care_salon": "barber",
-            "health_care": "nursing",
-            "electronics_repair": "phone_repair",
-            "pest_control": "termite_control",
-            "driver_service": "chauffeur",
-            "car_care": "car_wash",
-            "trips_travel": "tour_guide",
-            "car_rental": "vehicle_rental",
-            "emergency_service": "emergency_response",
-        }
+    def test_every_service_family_alias_accepts_a_vague_category_request(self):
+        for category, specialties in CATEGORY_SKILL_ALIASES.items():
+            for specialty in specialties:
+                with self.subTest(category=category, specialty=specialty):
+                    job = replace(
+                        self.job,
+                        job_id="broad-{}".format(category),
+                        description="I need help with this service",
+                        category_hint=category,
+                    )
+                    triage = replace(
+                        self.triage,
+                        job_id=job.job_id,
+                        category_id=category,
+                        required_skills=(category,),
+                    )
+                    provider = self._provider(
+                        "provider-{}-{}".format(category, specialty),
+                        (specialty,),
+                    )
 
-        for category, specialty in specialties.items():
-            with self.subTest(category=category):
-                job = replace(
-                    self.job,
-                    job_id="broad-{}".format(category),
-                    description="I need help with this service",
-                    category_hint=category,
-                )
-                triage = replace(
-                    self.triage,
-                    job_id=job.job_id,
-                    category_id=category,
-                    required_skills=(category,),
-                )
-                provider = self._provider("provider-{}".format(category), (specialty,))
+                    result = self.ranker.rank(job, triage, [provider])
 
-                result = self.ranker.rank(job, triage, [provider])
-
-                self.assertEqual(1, len(result.candidates))
+                    self.assertEqual(1, len(result.candidates))

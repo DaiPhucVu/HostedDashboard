@@ -5,7 +5,7 @@ export function getAiServiceUrl() {
     process.env.REACT_APP_AI_SERVICE_URL || "";
 }
 
-export async function requestAiReview(job, providers, jobs) {
+export async function requestAiReview(job, providers, jobs, reviews = []) {
   const serviceUrl = getAiServiceUrl();
   if (!serviceUrl) {
     throw new Error("Local AI service URL is not configured");
@@ -14,7 +14,7 @@ export async function requestAiReview(job, providers, jobs) {
   const response = await fetch(`${serviceUrl.replace(/\/$/, "")}/v1/assignment-reviews`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(toAssignmentReviewRequest(job, providers, jobs)),
+    body: JSON.stringify(toAssignmentReviewRequest(job, providers, jobs, reviews)),
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {

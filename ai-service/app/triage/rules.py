@@ -19,6 +19,9 @@ CRITICAL_TERMS = (
 )
 
 HIGH_TERMS = (
+    "urgent",
+    "immediately",
+    "as soon as possible",
     "sparking",
     "burning smell",
     "burst pipe",
@@ -28,6 +31,8 @@ HIGH_TERMS = (
     "পোড়া গন্ধ",
     "পাইপ ফেটে",
     "পানি ঢুকছে",
+    "জরুরি",
+    "এখনই",
     "current nai",
 )
 
@@ -58,6 +63,20 @@ def _contains(text: str, terms: Iterable[str]) -> bool:
     return any(normalize_text(term) in text for term in terms)
 
 
+def _matchable_text(value: str) -> str:
+    normalized = normalize_text(value)
+    characters = [
+        char if unicodedata.category(char)[0] in {"L", "M", "N"} else " "
+        for char in normalized
+    ]
+    return " ".join("".join(characters).split())
+
+
+def _matches_phrase(text: str, phrase: str) -> bool:
+    value = _matchable_text(phrase)
+    return bool(value) and " {} ".format(value) in " {} ".format(text)
+
+
 def detect_language(text: str) -> str:
     has_bangla = any("\u0980" <= char <= "\u09ff" for char in text)
     has_latin = any("a" <= char.casefold() <= "z" for char in text)
@@ -75,6 +94,25 @@ class RuleTriageService:
         self.taxonomy = taxonomy
         self.index = index
 
+    def description_category(
+        self,
+        description: str,
+    ) -> Tuple[Optional[str], Tuple[str, ...]]:
+        text = _matchable_text(description)
+        scored: List[Tuple[int, str, Tuple[str, ...]]] = []
+        for category in self.taxonomy["categories"]:
+            hits = tuple(
+                keyword
+                for keyword in category["keywords"]
+                if _matches_phrase(text, keyword)
+            )
+            scored.append((len(hits), category["id"], hits))
+        scored.sort(key=lambda row: (-row[0], row[1]))
+        best_count = scored[0][0]
+        if best_count == 0 or sum(row[0] == best_count for row in scored) > 1:
+            return None, tuple()
+        return scored[0][1], scored[0][2]
+
     def _category(self, job: JobInput) -> Tuple[Optional[str], Tuple[str, ...], float, Tuple[str, ...]]:
         category_by_id = {
             normalize_text(category["id"]): category
@@ -90,19 +128,12 @@ class RuleTriageService:
                 tuple(),
             )
 
-        text = normalize_text(" ".join(filter(None, [job.category_hint, job.description])))
-        scored: List[Tuple[int, str, Tuple[str, ...]]] = []
-        for category in self.taxonomy["categories"]:
-            hits = tuple(
-                keyword
-                for keyword in category["keywords"]
-                if normalize_text(keyword) in text
-            )
-            scored.append((len(hits), category["id"], hits))
-        scored.sort(key=lambda row: (-row[0], row[1]))
-        best_count, category_id, hits = scored[0]
-        if best_count == 0:
+        category_id, hits = self.description_category(
+            " ".join(filter(None, [job.category_hint, job.description]))
+        )
+        if category_id is None:
             return None, tuple(), 0.30, tuple()
+        best_count = len(hits)
         confidence = min(0.95, 0.62 + 0.10 * (best_count - 1))
         required = next(
             tuple(category["requiredSkills"])
@@ -160,4 +191,10 @@ class RuleTriageService:
             extracted_issues=keyword_hits,
             language=job.language_hint or detect_language(job.description),
             safety_flags=("POTENTIAL_IMMEDIATE_HAZARD",) if urgency == "CRITICAL" else tuple(),
+            original_category=(
+                category_id
+                if normalize_text(job.category_hint or "") == normalize_text(category_id or "")
+                else None
+            ),
+            final_category=category_id,
         )

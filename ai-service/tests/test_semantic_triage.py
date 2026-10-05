@@ -99,7 +99,7 @@ class SemanticRagTriageTests(unittest.TestCase):
         self.assertIn("FTS5_EVIDENCE_GROUNDED", result.reason_codes)
         self.assertIn("REQUIRED_SKILLS_CANONICALISED", result.reason_codes)
         self.assertTrue(result.model_version.startswith(
-            "semantic-rag-v3-category-hint-fake-fake-qwen"
+            "semantic-rag-v4-controlled-override-fake-fake-qwen"
         ))
         self.assertEqual(1, len(client.calls))
         evidence = client.calls[0]["evidence"]
@@ -212,7 +212,7 @@ class SemanticRagTriageTests(unittest.TestCase):
         self.assertIn("CATEGORY_HINT_GROUNDED", result.reason_codes)
         self.assertNotIn("UNGROUNDED_CATEGORY", result.reason_codes)
 
-    def test_app_category_prevents_semantic_model_from_filtering_the_right_family(self):
+    def test_unverified_category_conflict_requires_manual_review(self):
         client = FakeSemanticClient(semantic_result(
             category_id="cleaning",
             required_skills=["cleaning"],
@@ -238,12 +238,73 @@ class SemanticRagTriageTests(unittest.TestCase):
 
         self.assertEqual("beauty_wellness", result.category_id)
         self.assertEqual(("beauty_wellness",), result.required_skills)
-        self.assertEqual("READY_FOR_ASSIGNMENT", result.triage_status)
-        self.assertIn("SEMANTIC_CATEGORY_ALIGNED_TO_HINT", result.reason_codes)
+        self.assertEqual("MANUAL_REVIEW", result.triage_status)
+        self.assertIn("CATEGORY_SEMANTIC_CONFLICT", result.reason_codes)
+        self.assertIn("CATEGORY_OVERRIDE_CONFIDENCE_LOW", result.reason_codes)
         self.assertEqual("Need a general service", result.issue_summary)
         self.assertNotIn("general wellness request", result.extracted_issues)
         self.assertEqual("NORMAL", result.urgency)
         self.assertEqual((), result.safety_flags)
+
+    def test_semantic_override_requires_model_and_keyword_agreement(self):
+        client = FakeSemanticClient(semantic_result(
+            category_id="appliance_repair",
+            required_skills=["appliance_repair"],
+            urgency="NORMAL",
+            issue_summary="Washing machine is leaking.",
+            extracted_issues=["washing machine", "leaking"],
+            safety_flags=[],
+            confidence=0.92,
+        ))
+        service = SemanticRagTriageService(self.taxonomy, self.index, client, self.rules)
+        job = JobInput(
+            job_id="wrong-app-category",
+            description="Washing machine is leaking",
+            category_hint="ac_repair",
+            location_text="Dhaka",
+            latitude=23.78,
+            longitude=90.40,
+            start_at="2026-09-10T10:00:00+06:00",
+        )
+
+        result = service.triage(job)
+
+        self.assertEqual("appliance_repair", result.category_id)
+        self.assertEqual("READY_FOR_ASSIGNMENT", result.triage_status)
+        self.assertEqual("ac_repair", result.original_category)
+        self.assertEqual("appliance_repair", result.semantic_category)
+        self.assertEqual("appliance_repair", result.final_category)
+        self.assertEqual("SEMANTIC_OVERRIDE", result.category_decision)
+        self.assertEqual("WASHING_MACHINE_ENTITY", result.override_reason)
+        self.assertIn("CATEGORY_SEMANTIC_OVERRIDE", result.reason_codes)
+
+    def test_high_confidence_without_keyword_agreement_keeps_manual_review(self):
+        client = FakeSemanticClient(semantic_result(
+            category_id="appliance_repair",
+            required_skills=["appliance_repair"],
+            urgency="NORMAL",
+            issue_summary="Appliance request",
+            extracted_issues=["appliance"],
+            safety_flags=[],
+            confidence=0.95,
+        ))
+        service = SemanticRagTriageService(self.taxonomy, self.index, client, self.rules)
+        job = JobInput(
+            job_id="unverified-conflict",
+            description="Please help with this service",
+            category_hint="ac_repair",
+            location_text="Dhaka",
+            latitude=23.78,
+            longitude=90.40,
+            start_at="2026-09-10T10:00:00+06:00",
+        )
+
+        result = service.triage(job)
+
+        self.assertEqual("ac_repair", result.category_id)
+        self.assertEqual("MANUAL_REVIEW", result.triage_status)
+        self.assertEqual("MANUAL_REVIEW", result.category_decision)
+        self.assertIn("CATEGORY_OVERRIDE_ENTITY_MISSING", result.reason_codes)
 
     def test_ollama_request_contains_full_evidence_and_json_schema(self):
         evidence = self.index.retrieve("burning smell from wall outlet", limit=5)

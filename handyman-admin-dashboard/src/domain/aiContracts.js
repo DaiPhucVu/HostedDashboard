@@ -1,3 +1,6 @@
+import { buildProviderHistory } from "./providerHistory";
+import { PROVIDER_WORKLOAD_LIMIT, hasWorkloadCapacity } from "./workloadPolicy";
+
 export const TRIAGE_STATUSES = Object.freeze([
   "NEEDS_INFO",
   "MANUAL_REVIEW",
@@ -76,87 +79,109 @@ const CATEGORY_ALIASES = Object.freeze({
   "emergency service": "emergency_service",
 });
 
+export const SERVICE_FAMILY_ALIASES = Object.freeze({
+  plumbing: [
+    "plumbing", "plumber", "pipe fitting", "pipe repair", "faucet repair",
+    "tap repair", "drain repair", "drain cleaning", "toilet repair", "sink repair",
+    "leak repair", "bathroom plumbing", "water line repair",
+  ],
+  electrical: [
+    "electrical", "electric", "electrician", "wiring", "socket repair",
+    "outlet repair", "switch repair", "lighting", "light installation",
+    "circuit breaker", "fan installation", "electrical installation", "power fault",
+  ],
+  cleaning: [
+    "cleaning", "cleaner", "cleaning solution", "deep cleaning", "house cleaning",
+    "home cleaning", "office cleaning", "kitchen cleaning", "bathroom cleaning",
+    "carpet cleaning", "window cleaning", "move out cleaning",
+  ],
+  appliance_repair: [
+    "appliance repair", "fridge repair", "refrigerator repair", "washing machine repair",
+    "oven repair", "microwave repair", "dishwasher repair", "dryer repair",
+    "freezer repair", "cooker repair", "water heater repair",
+  ],
+  painting: [
+    "painting", "painter", "painting and renovation", "painting & renovation",
+    "wall painting", "house painting", "interior painting", "exterior painting",
+    "renovation", "home renovation", "wallpaper", "plastering",
+  ],
+  ac_repair: [
+    "a/c repair services", "a/c repair", "ac repair services", "ac repair", "hvac",
+    "air conditioning", "air conditioner repair", "ac installation", "ac servicing",
+    "ac cleaning", "ac gas refill",
+  ],
+  beauty_wellness: [
+    "beauty and wellness", "beauty & wellness", "beautician", "makeup", "makeup artist",
+    "facial", "spa", "skincare", "massage", "wellness", "manicure", "pedicure",
+    "waxing", "beauty treatment", "hair styling",
+  ],
+  shifting: [
+    "shifting", "house moving", "home moving", "moving", "packing", "mover",
+    "furniture moving", "office relocation", "loading", "unloading",
+  ],
+  mens_care_salon: [
+    "men's care and salon", "men's care & salon", "mens care and salon",
+    "mens care & salon", "barber", "men's haircut", "mens haircut", "haircut",
+    "shaving", "grooming", "beard trim", "men's grooming", "mens grooming",
+    "men's hair styling", "mens hair styling", "salon service",
+  ],
+  health_care: [
+    "health and care", "health & care", "caregiver", "home care", "patient care",
+    "elderly care", "nursing", "home nursing", "physiotherapy", "disability care",
+  ],
+  electronics_repair: [
+    "electronics and gadget repair", "electronics and gadgets repair",
+    "electronics & gadgets repair", "electronics repair", "gadget repair", "phone repair",
+    "mobile repair", "laptop repair", "computer repair", "tablet repair", "tv repair",
+    "screen replacement", "device repair",
+  ],
+  pest_control: [
+    "pest control", "cockroach control", "termite control", "rodent control",
+    "rat control", "bed bug control", "mosquito control", "fumigation",
+  ],
+  driver_service: [
+    "driver service", "driver", "personal driver", "chauffeur", "driving service",
+    "designated driver",
+  ],
+  car_care: [
+    "car care services", "car care", "car wash", "car mechanic", "vehicle service",
+    "vehicle repair", "car repair", "oil change", "tyre service", "tire service",
+    "battery service", "car detailing",
+  ],
+  trips_travel: [
+    "trips and travel", "trips and travels", "trips & travels", "travel planning",
+    "tour guide", "travel agent", "trip booking", "tour package", "ticket booking",
+    "hotel booking",
+  ],
+  car_rental: [
+    "car rental", "vehicle rental", "rent a car", "hire a car", "car hire",
+    "self drive rental",
+  ],
+  emergency_service: [
+    "emergency service", "emergency services", "emergency response", "urgent assistance",
+    "immediate help", "roadside assistance",
+  ],
+});
+
+const normaliseSkillAlias = (value) => String(value || "")
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, "_")
+  .replace(/^_+|_+$/g, "");
+
+const familyAliasEntries = Object.entries(SERVICE_FAMILY_ALIASES).flatMap(([family, aliases]) =>
+  aliases.flatMap((alias) => {
+    const token = normaliseSkillAlias(alias);
+    const isFamilyLabel = CATEGORY_ALIASES[alias.toLowerCase()] === family;
+    const mapped = isFamilyLabel ? [family] : [...new Set([family, token])];
+    return [[alias.toLowerCase(), mapped], [token, mapped]];
+  })
+);
+
 const SKILL_ALIASES = Object.freeze({
-  plumber: ["plumbing", "plumber"],
-  plumbing: ["plumbing"],
-  electrician: ["electrical", "electrician"],
-  electric: ["electrical"],
-  electrical: ["electrical"],
+  ...Object.fromEntries(familyAliasEntries),
   "electric & plumbing": ["electrical", "plumbing"],
   "electric and plumbing": ["electrical", "plumbing"],
-  "appliance repair": ["appliance_repair"],
-  appliance_repair: ["appliance_repair"],
-  "a/c repair services": ["ac_repair"],
-  "a/c repair": ["ac_repair"],
-  "ac repair services": ["ac_repair"],
-  "ac repair": ["ac_repair"],
-  cleaning: ["cleaning"],
-  "cleaning solution": ["cleaning"],
-  painting: ["painting"],
-  "painting & renovation": ["painting"],
-  "painting and renovation": ["painting"],
-  "beauty & wellness": ["beauty_wellness"],
-  "beauty and wellness": ["beauty_wellness"],
-  shifting: ["shifting"],
-  "men's care & salon": ["mens_care_salon"],
-  "men's care and salon": ["mens_care_salon"],
-  "mens care & salon": ["mens_care_salon"],
-  "mens care and salon": ["mens_care_salon"],
-  "health & care": ["health_care"],
-  "health and care": ["health_care"],
-  "electronics & gadgets repair": ["electronics_repair"],
-  "electronics and gadgets repair": ["electronics_repair"],
-  "electronics and gadget repair": ["electronics_repair"],
-  "pest control": ["pest_control"],
-  "driver service": ["driver_service"],
-  "car care services": ["car_care"],
-  "trips & travels": ["trips_travel"],
-  "trips and travels": ["trips_travel"],
-  "trips and travel": ["trips_travel"],
-  "car rental": ["car_rental"],
-  "emergency services": ["emergency_service"],
-  "emergency service": ["emergency_service"],
-  "pipe fitting": ["plumbing", "pipe_fitting"],
-  wiring: ["electrical", "wiring"],
-  cleaner: ["cleaning", "cleaner"],
-  "deep cleaning": ["cleaning", "deep_cleaning"],
-  "fridge repair": ["appliance_repair", "fridge_repair"],
-  "washing machine repair": ["appliance_repair", "washing_machine_repair"],
-  "oven repair": ["appliance_repair", "oven_repair"],
-  painter: ["painting", "painter"],
-  renovation: ["painting", "renovation"],
-  hvac: ["ac_repair", "hvac"],
-  "air conditioning": ["ac_repair", "air_conditioning"],
-  beautician: ["beauty_wellness", "beautician"],
-  makeup: ["beauty_wellness", "makeup"],
-  "makeup artist": ["beauty_wellness", "makeup_artist"],
-  facial: ["beauty_wellness", "facial"],
-  spa: ["beauty_wellness", "spa"],
-  skincare: ["beauty_wellness", "skincare"],
-  massage: ["beauty_wellness", "massage"],
-  wellness: ["beauty_wellness", "wellness"],
-  "house moving": ["shifting", "house_moving"],
-  packing: ["shifting", "packing"],
-  barber: ["mens_care_salon", "barber"],
-  haircut: ["mens_care_salon", "haircut"],
-  shaving: ["mens_care_salon", "shaving"],
-  grooming: ["mens_care_salon", "grooming"],
-  caregiver: ["health_care", "caregiver"],
-  nursing: ["health_care", "nursing"],
-  "elderly care": ["health_care", "elderly_care"],
-  "phone repair": ["electronics_repair", "phone_repair"],
-  "mobile repair": ["electronics_repair", "mobile_repair"],
-  "laptop repair": ["electronics_repair", "laptop_repair"],
-  "termite control": ["pest_control", "termite_control"],
-  "rodent control": ["pest_control", "rodent_control"],
-  driver: ["driver_service", "driver"],
-  chauffeur: ["driver_service", "chauffeur"],
-  "car wash": ["car_care", "car_wash"],
-  "car mechanic": ["car_care", "car_mechanic"],
-  "tour guide": ["trips_travel", "tour_guide"],
-  "travel agent": ["trips_travel", "travel_agent"],
-  "vehicle rental": ["car_rental", "vehicle_rental"],
-  "emergency response": ["emergency_service", "emergency_response"],
+  electric_and_plumbing: ["electrical", "plumbing"],
 });
 
 const asNumber = (value, fallback) => {
@@ -203,12 +228,16 @@ const coordinatesFor = (record, fallback = FALLBACK_COORDINATES) => {
     Number.isFinite(longitude) &&
     !(latitude === 0 && longitude === 0)
   ) {
-    return { latitude, longitude };
+    return { latitude, longitude, source: "RECORDED_COORDINATES" };
   }
   const area = String(record.area || record.city || record.thana || "").trim().toLowerCase();
-  if (AREA_COORDINATES[area]) return AREA_COORDINATES[area];
+  if (AREA_COORDINATES[area]) return { ...AREA_COORDINATES[area], source: "AREA_CENTROID" };
   const areaMatch = Object.keys(AREA_COORDINATES).find((knownArea) => area.includes(knownArea));
-  return areaMatch ? AREA_COORDINATES[areaMatch] : fallback;
+  if (areaMatch) return { ...AREA_COORDINATES[areaMatch], source: "AREA_CENTROID" };
+  return {
+    ...fallback,
+    source: fallback.latitude === null ? "MISSING" : "POLICY_DEFAULT_COORDINATES",
+  };
 };
 
 const isVerified = (provider) => {
@@ -239,10 +268,13 @@ export function toTriageJob(job) {
   };
 }
 
-export function toProviderProfile(provider, activeJobs = 0) {
+export function toProviderProfile(provider, history = buildProviderHistory("", [], [])) {
   const coordinates = coordinatesFor(provider);
+  const recordedExperience = asNumber(provider.experienceYears, null);
+  const recordedServiceRadius = asNumber(provider.serviceRadiusKm, null);
+  const availabilityStatus = String(provider.availabilityStatus || provider.status || "").trim();
   const unavailable = ["unavailable", "inactive", "suspended"].includes(
-    String(provider.availabilityStatus || provider.status || "").trim().toLowerCase()
+    availabilityStatus.toLowerCase()
   );
   const recordedSkills = [
     provider.skills,
@@ -266,32 +298,44 @@ export function toProviderProfile(provider, activeJobs = 0) {
     available: provider.available !== false && provider.available !== "false" && !unavailable,
     latitude: coordinates.latitude,
     longitude: coordinates.longitude,
-    serviceRadiusKm: asNumber(provider.serviceRadiusKm, 25),
-    activeJobs: Math.max(0, asNumber(provider.activeJobs, activeJobs)),
-    maxConcurrentJobs: Math.max(1, asNumber(provider.maxConcurrentJobs, 3)),
-    averageRating: Math.min(5, Math.max(0, asNumber(provider.averageRating ?? provider.rating, 4))),
-    reviewCount: Math.max(0, asNumber(provider.reviewCount, 0)),
-    completionRate: Math.min(1, Math.max(0, asNumber(provider.completionRate, 0.9))),
-    cancellationRate: Math.min(1, Math.max(0, asNumber(provider.cancellationRate, 0.05))),
-    medianResponseMinutes: Math.max(0, asNumber(provider.medianResponseMinutes, 30)),
+    serviceRadiusKm: recordedServiceRadius > 0 ? recordedServiceRadius : 25,
+    activeJobs: history.activeJobs,
+    maxConcurrentJobs: PROVIDER_WORKLOAD_LIMIT,
+    averageRating: history.averageRating,
+    reviewCount: history.reviewCount,
+    completionRate: history.completedJobs + history.providerCancelledJobs > 0
+      ? history.completedJobs / (history.completedJobs + history.providerCancelledJobs)
+      : 0,
+    cancellationRate: history.completedJobs + history.providerCancelledJobs > 0
+      ? history.providerCancelledJobs / (history.completedJobs + history.providerCancelledJobs)
+      : 0,
+    medianResponseMinutes: Math.max(0, asNumber(provider.medianResponseMinutes, 0)),
+    yearsExperience: Math.max(0, recordedExperience || 0),
+    yearsExperienceRecorded: recordedExperience !== null,
+    completedJobs: history.completedJobs,
+    completedJobsByCategory: history.completedJobsByCategory,
+    providerCancelledJobs: history.providerCancelledJobs,
+    locationSource: coordinates.source,
+    serviceRadiusRecorded: recordedServiceRadius > 0,
+    availabilityRecorded: true,
+    capacityRecorded: true,
   };
 }
 
-export function toAssignmentReviewRequest(job, providers, jobs = []) {
-  const activeJobCounts = jobs.reduce((counts, item) => {
-    if (item.assignedTo && !["done", "completed", "cancelled"].includes(
-      String(item.jobStatus || "").trim().toLowerCase()
-    )) {
-      counts[item.assignedTo] = (counts[item.assignedTo] || 0) + 1;
-    }
-    return counts;
-  }, {});
+export function toAssignmentReviewRequest(job, providers, jobs = [], reviews = []) {
+  const historyJobs = jobs.map((item) => ({
+    ...item,
+    canonicalCategory: canonicalJobCategory(item),
+  }));
   return {
     job: toTriageJob(job),
-    providers: providers.map((provider) => toProviderProfile(
-      provider,
-      activeJobCounts[provider.handymanId || provider.id] || 0
-    )),
+    providers: providers.map((provider) => {
+      const providerId = provider.handymanId || provider.id;
+      return toProviderProfile(
+        provider,
+        buildProviderHistory(providerId, historyJobs, reviews)
+      );
+    }),
   };
 }
 
@@ -312,7 +356,10 @@ export function getManualAssignmentOptions(job, providers, jobs = [], triage = n
 
   return request.providers.map((profile, index) => {
     const warnings = [];
-    if ([...requiredSkills].some((skill) => !profile.skills.includes(skill))) {
+    if ([...requiredSkills].some((skill) => (
+      !profile.skills.includes(skill) &&
+      Number(profile.completedJobsByCategory?.[skill] || 0) <= 0
+    ))) {
       warnings.push("MISSING_REQUIRED_SKILL");
     }
     if (request.job.latitude === null || request.job.longitude === null) {
@@ -326,9 +373,8 @@ export function getManualAssignmentOptions(job, providers, jobs = [], triage = n
       displayName: profile.displayName,
       skills: profile.skills,
       activeJobs: profile.activeJobs,
-      maxConcurrentJobs: profile.maxConcurrentJobs,
       warnings,
-      eligible: profile.verified && profile.available && profile.activeJobs < profile.maxConcurrentJobs,
+      eligible: profile.verified && profile.available && hasWorkloadCapacity(profile.activeJobs),
     };
   }).filter((option) => option.eligible)
     .sort((left, right) => left.warnings.length - right.warnings.length ||
@@ -345,6 +391,14 @@ export function assertAiReview(review, jobId) {
   }
   if (!Array.isArray(review.ranking.candidates)) {
     throw new Error("AI review is missing provider candidates");
+  }
+  if (review.autoAssignment) {
+    if (!["AUTO_ASSIGN", "MANUAL_REVIEW"].includes(review.autoAssignment.decision)) {
+      throw new Error("AI review returned an unknown automatic assignment decision");
+    }
+    if (!Array.isArray(review.autoAssignment.reasonCodes)) {
+      throw new Error("AI review is missing automatic assignment reason codes");
+    }
   }
   return review;
 }

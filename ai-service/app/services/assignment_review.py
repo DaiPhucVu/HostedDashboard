@@ -12,6 +12,7 @@ from app.triage.semantic import (
     SemanticTriageClient,
     create_semantic_triage_client,
 )
+from app.services.auto_assignment import AutoAssignmentDecisionService
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -42,11 +43,15 @@ class AssignmentReviewService:
             rule_service,
         )
         self.ranker = WeightedProviderRanker()
+        self.auto_assignment = AutoAssignmentDecisionService()
         self.schemas = {
             "job": load_schema(self.root / "contracts" / "job.schema.json"),
             "provider": load_schema(self.root / "contracts" / "provider.schema.json"),
             "triage": load_schema(self.root / "contracts" / "triage-result.schema.json"),
             "ranking": load_schema(self.root / "contracts" / "ranking-result.schema.json"),
+            "autoAssignment": load_schema(
+                self.root / "contracts" / "auto-assignment-decision.schema.json"
+            ),
         }
 
     def review(
@@ -64,12 +69,21 @@ class AssignmentReviewService:
                 providers.append(ProviderProfile.from_dict(provider_payload))
         triage = self.triage_service.triage(job)
         ranking = self.ranker.rank(job, triage, providers)
+        auto_assignment = self.auto_assignment.decide(
+            job,
+            triage,
+            ranking,
+            providers,
+        )
         triage_payload = triage.to_contract_dict()
         ranking_payload = ranking.to_contract_dict()
+        auto_assignment_payload = auto_assignment.to_contract_dict()
         validate(triage_payload, self.schemas["triage"])
         validate(ranking_payload, self.schemas["ranking"])
+        validate(auto_assignment_payload, self.schemas["autoAssignment"])
         return {
             "source": "LOCAL_SERVICE",
             "triage": triage_payload,
             "ranking": ranking_payload,
+            "autoAssignment": auto_assignment_payload,
         }

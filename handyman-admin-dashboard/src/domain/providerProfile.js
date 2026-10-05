@@ -1,3 +1,6 @@
+import { buildProviderHistory } from "./providerHistory";
+import { PROVIDER_WORKLOAD_LIMIT } from "./workloadPolicy";
+
 const asList = (value) => {
   const values = Array.isArray(value)
     ? value.flatMap((item) => Array.isArray(item) ? item : String(item || "").split(","))
@@ -6,7 +9,6 @@ const asList = (value) => {
 };
 
 const providerIdOf = (provider) => provider?.handymanId || provider?.id || "";
-const assignedProviderId = (job) => job?.assignedTo || job?.assignment?.providerId || job?.assignment?.assignedTo || "";
 const asRecordedNumber = (value) => {
   if (value === undefined || value === null || value === "") return null;
   const number = Number(value);
@@ -23,13 +25,9 @@ const certificateSummary = (provider) => {
   return certificates;
 };
 
-export function buildProviderProfile(provider, jobs = []) {
+export function buildProviderProfile(provider, jobs = [], reviews = []) {
   const providerId = providerIdOf(provider);
-  const providerJobs = jobs.filter((job) => assignedProviderId(job) === providerId);
-  const statusOf = (job) => String(job?.jobStatus || "").trim().toLowerCase();
-  const completedJobs = providerJobs.filter((job) => ["done", "completed", "complete"].includes(statusOf(job))).length;
-  const cancelledJobs = providerJobs.filter((job) => ["cancelled", "canceled"].includes(statusOf(job))).length;
-  const activeJobs = providerJobs.length - completedJobs - cancelledJobs;
+  const history = buildProviderHistory(providerId, jobs, reviews);
   const recordedVerificationStatus = String(provider?.verificationStatus || "").trim();
   const approvedStatus = ["approved", "verified", "active"].includes(recordedVerificationStatus.toLowerCase());
   const rejectedStatus = ["declined", "rejected", "unverified", "suspended", "inactive"].includes(recordedVerificationStatus.toLowerCase());
@@ -77,13 +75,14 @@ export function buildProviderProfile(provider, jobs = []) {
     bio: String(provider?.bio || "").trim(),
     certificateTypes: certificateSummary(provider),
     certificateStatus: String(provider?.certificateApprovedStatus || "").trim(),
-    averageRating: asRecordedNumber(provider?.averageRating ?? provider?.rating),
-    reviewCount: asRecordedNumber(provider?.reviewCount),
+    averageRating: history.averageRating,
+    reviewCount: history.reviewCount,
     location,
     serviceRadiusKm: asRecordedNumber(provider?.serviceRadiusKm),
-    activeJobs,
-    completedJobs,
-    cancelledJobs,
-    maxConcurrentJobs: asRecordedNumber(provider?.maxConcurrentJobs),
+    activeJobs: history.activeJobs,
+    completedJobs: history.completedJobs,
+    providerCancelledJobs: history.providerCancelledJobs,
+    unattributedCancelledJobs: history.unattributedCancelledJobs,
+    maxConcurrentJobs: PROVIDER_WORKLOAD_LIMIT,
   };
 }

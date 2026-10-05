@@ -1,5 +1,6 @@
 import {
   getManualAssignmentOptions,
+  SERVICE_FAMILY_ALIASES,
   SUPPORTED_AI_CATEGORIES,
   toAssignmentReviewRequest,
 } from "./aiContracts";
@@ -37,6 +38,58 @@ test("maps the current Firebase job and provider data into the AI contract", () 
     verified: true,
     skills: ["electrical"],
     activeJobs: 1,
+  });
+});
+
+test("uses completed jobs and customer reviews instead of profile placeholder scores", () => {
+  const request = toAssignmentReviewRequest(
+    {
+      jobId: "new-job",
+      jobCat: "Plumbing",
+      jobDesc: "Kitchen pipe leak",
+      jobLocation: "Gulshan",
+    },
+    [{
+      handymanId: "provider-history",
+      verificationStatus: "approved",
+      primaryTrade: "Plumbing",
+      experienceYears: "12",
+      area: "Gulshan",
+      averageRating: 5,
+      reviewCount: 99,
+    }],
+    [
+      { jobId: "done", assignedTo: "provider-history", jobCat: "Plumbing", jobStatus: "Done" },
+      { jobId: "active", assignedTo: "provider-history", jobCat: "Plumbing", jobStatus: "Offered" },
+    ],
+    [{ jobId: "done", handymanId: "provider-history", reviewerType: "customer", rating: 4 }]
+  );
+
+  expect(request.providers[0]).toMatchObject({
+    yearsExperience: 12,
+    yearsExperienceRecorded: true,
+    completedJobs: 1,
+    completedJobsByCategory: { plumbing: 1 },
+    activeJobs: 1,
+    averageRating: 4,
+    reviewCount: 1,
+  });
+});
+
+test("marks missing declared experience instead of presenting it as observed zero", () => {
+  const request = toAssignmentReviewRequest(
+    { jobId: "job", jobCat: "Cleaning Solution", jobDesc: "Clean my kitchen" },
+    [{ handymanId: "provider", verified: true, skills: ["Cleaning Solution"] }]
+  );
+
+  expect(request.providers[0]).toMatchObject({
+    yearsExperience: 0,
+    yearsExperienceRecorded: false,
+    locationSource: "POLICY_DEFAULT_COORDINATES",
+    serviceRadiusRecorded: false,
+    availabilityRecorded: true,
+    capacityRecorded: true,
+    maxConcurrentJobs: 3,
   });
 });
 
@@ -119,9 +172,13 @@ test("manual assignment keeps account and capacity guards but reports skill risk
   const providers = [
     { handymanId: "eligible", firstName: "Manual", verified: true, available: true, skills: ["cleaning"], area: "Gulshan" },
     { handymanId: "unverified", verified: false, available: true, skills: ["plumbing"], area: "Gulshan" },
-    { handymanId: "full", verified: true, available: true, skills: ["plumbing"], area: "Gulshan", maxConcurrentJobs: 1 },
+    { handymanId: "full", verified: true, available: true, skills: ["plumbing"], area: "Gulshan", maxConcurrentJobs: 10 },
   ];
-  const jobs = [{ jobId: "active", assignedTo: "full", jobStatus: "Offered" }];
+  const jobs = [1, 2, 3].map((number) => ({
+    jobId: `active-${number}`,
+    assignedTo: "full",
+    jobStatus: "Offered",
+  }));
   const options = getManualAssignmentOptions(
     { jobId: "job", jobCat: "Plumbing", jobDesc: "General plumbing work", jobLocation: "Gulshan" },
     providers,
@@ -134,6 +191,23 @@ test("manual assignment keeps account and capacity guards but reports skill risk
     providerId: "eligible",
     warnings: ["MISSING_REQUIRED_SKILL"],
   });
+});
+
+test("uses completed family history when profile skills are not recorded", () => {
+  const options = getManualAssignmentOptions(
+    { jobId: "job", jobCat: "Plumbing", jobDesc: "Need plumbing help" },
+    [{ handymanId: "history-provider", verified: true, available: true }],
+    [{
+      jobId: "completed-plumbing",
+      assignedTo: "history-provider",
+      jobCat: "Plumbing",
+      jobStatus: "Done",
+    }],
+    { requiredSkills: ["plumbing"] }
+  );
+
+  expect(options).toHaveLength(1);
+  expect(options[0].warnings).not.toContain("MISSING_REQUIRED_SKILL");
 });
 
 test("maps every Android service category to a supported AI skill", () => {
@@ -170,6 +244,19 @@ test("maps every Android service category to a supported AI skill", () => {
     expect(request.job.categoryHint).toBe(expectedCategory);
     expect(request.providers[0].skills).toEqual(expectedSkills);
     expect(SUPPORTED_AI_CATEGORIES).toContain(expectedCategory);
+  });
+});
+
+test("maps every recorded specialty alias back to its service family", () => {
+  Object.entries(SERVICE_FAMILY_ALIASES).forEach(([family, aliases]) => {
+    aliases.forEach((alias) => {
+      const request = toAssignmentReviewRequest(
+        { jobId: `${family}-${alias}`, jobCat: family, jobDesc: "Need help" },
+        [{ handymanId: `${family}-${alias}`, primaryTrade: alias, verified: true }]
+      );
+
+      expect(request.providers[0].skills).toContain(family);
+    });
   });
 });
 

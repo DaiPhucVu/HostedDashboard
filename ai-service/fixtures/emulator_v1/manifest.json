@@ -1,0 +1,35 @@
+{
+  "datasetVersion": "firebase-emulator-v1",
+  "sourceType": "SYNTHETIC_REVIEWED_TEST_DATA",
+  "purpose": "Offline triage, ranking, and automatic-assignment evaluation only",
+  "sharedFirebaseSafe": false,
+  "taxonomyVersion": "taxonomy-v2-mobile-categories",
+  "providerCount": 37,
+  "completeEligibleProviderCount": 34,
+  "labelledJobCount": 102,
+  "languageCounts": {
+    "bn": 40,
+    "en": 40,
+    "mixed": 22
+  },
+  "serviceFamilies": [
+    "plumbing",
+    "electrical",
+    "cleaning",
+    "appliance_repair",
+    "painting",
+    "ac_repair",
+    "beauty_wellness",
+    "shifting",
+    "mens_care_salon",
+    "health_care",
+    "electronics_repair",
+    "pest_control",
+    "driver_service",
+    "car_care",
+    "trips_travel",
+    "car_rental",
+    "emergency_service"
+  ],
+  "labelPolicy": "Expected labels are independent of model and ranker output; two human reviewers must approve them before release gating."
+}

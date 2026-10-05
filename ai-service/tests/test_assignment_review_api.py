@@ -25,6 +25,26 @@ VALID_JOB = {
 }
 
 
+class ApplianceSemanticClient:
+    model = "test-qwen"
+    provider = "test"
+
+    def generate(self, job, evidence, taxonomy):
+        return {
+            "category_id": "appliance_repair",
+            "urgency": "NORMAL",
+            "required_skills": ["appliance_repair"],
+            "description_complete": True,
+            "missing_information": [],
+            "issue_summary": "Washing machine is leaking.",
+            "extracted_issues": ["washing machine", "leaking"],
+            "language": "en",
+            "safety_flags": [],
+            "reason_codes": ["WASHING_MACHINE"],
+            "confidence": 0.92,
+        }
+
+
 class AssignmentReviewServiceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -36,6 +56,7 @@ class AssignmentReviewServiceTests(unittest.TestCase):
         self.assertEqual(review["triage"]["triageStatus"], "READY_FOR_ASSIGNMENT")
         self.assertEqual(review["ranking"]["candidates"][0]["providerId"], "11111111-1111-1111-1111-111111111111")
         self.assertEqual(len(review["ranking"]["candidates"]), 5)
+        self.assertIn(review["autoAssignment"]["decision"], {"AUTO_ASSIGN", "MANUAL_REVIEW"})
 
     def test_critical_job_is_prioritised_and_returns_eligible_candidates(self):
         job = dict(VALID_JOB, description="Smoke and sparking from an electrical socket", categoryHint="Electrical")
@@ -69,6 +90,54 @@ class AssignmentReviewServiceTests(unittest.TestCase):
             ["firebase-provider-1"],
         )
 
+    def test_controlled_override_reranks_and_auto_assigns_the_right_family(self):
+        service = AssignmentReviewService(semantic_client=ApplianceSemanticClient())
+        job = dict(
+            VALID_JOB,
+            jobId="wrong-category-job",
+            categoryHint="ac_repair",
+            description="Washing machine is leaking",
+        )
+
+        def provider(provider_id, skill):
+            return {
+                "providerId": provider_id,
+                "displayName": provider_id,
+                "verified": True,
+                "skills": [skill],
+                "languages": ["en"],
+                "available": True,
+                "latitude": 23.7461,
+                "longitude": 90.3742,
+                "serviceRadiusKm": 20,
+                "activeJobs": 0,
+                "maxConcurrentJobs": 3,
+                "averageRating": 4.8,
+                "reviewCount": 20,
+                "completionRate": 1,
+                "cancellationRate": 0,
+                "medianResponseMinutes": 10,
+                "yearsExperience": 8,
+                "completedJobs": 20,
+                "completedJobsByCategory": {skill: 20},
+                "providerCancelledJobs": 0,
+            }
+
+        review = service.review(job, [
+            provider("ac-provider", "ac_repair"),
+            provider("appliance-provider", "appliance_repair"),
+        ])
+
+        self.assertEqual("ac_repair", review["triage"]["originalCategory"])
+        self.assertEqual("appliance_repair", review["triage"]["semanticCategory"])
+        self.assertEqual("appliance_repair", review["triage"]["finalCategory"])
+        self.assertEqual("SEMANTIC_OVERRIDE", review["triage"]["categoryDecision"])
+        self.assertEqual(
+            ["appliance-provider"],
+            [item["providerId"] for item in review["ranking"]["candidates"]],
+        )
+        self.assertEqual("AUTO_ASSIGN", review["autoAssignment"]["decision"])
+
 
 class AssignmentReviewHttpTests(unittest.TestCase):
     @classmethod
@@ -76,7 +145,7 @@ class AssignmentReviewHttpTests(unittest.TestCase):
         service = AssignmentReviewService()
         cls.server = ThreadingHTTPServer(
             ("127.0.0.1", 0),
-            make_handler(service, "http://127.0.0.1:3000"),
+            make_handler(service, "http://127.0.0.1:3000,http://localhost:3007"),
         )
         cls.thread = Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
@@ -102,6 +171,25 @@ class AssignmentReviewHttpTests(unittest.TestCase):
             self.assertEqual(response.status, 200)
             self.assertEqual(response.headers["Access-Control-Allow-Origin"], "http://127.0.0.1:3000")
             self.assertEqual(payload["triage"]["jobId"], VALID_JOB["jobId"])
+
+    def test_cors_allows_each_configured_dashboard_origin(self):
+        request = Request(
+            self.base_url + "/health",
+            headers={"Origin": "http://localhost:3007"},
+        )
+        with urlopen(request) as response:
+            self.assertEqual(
+                "http://localhost:3007",
+                response.headers["Access-Control-Allow-Origin"],
+            )
+
+    def test_cors_does_not_echo_an_unconfigured_origin(self):
+        request = Request(
+            self.base_url + "/health",
+            headers={"Origin": "https://untrusted.example"},
+        )
+        with urlopen(request) as response:
+            self.assertIsNone(response.headers["Access-Control-Allow-Origin"])
 
     def test_http_endpoint_accepts_dashboard_job_and_provider_envelope(self):
         provider = {
@@ -144,8 +232,7 @@ class AssignmentReviewHttpTests(unittest.TestCase):
                 payload = json.loads(response.read().decode("utf-8"))
                 return [item["providerId"] for item in payload["ranking"]["candidates"]]
 
-        # Four clients are enough to exercise the threaded handler while staying
-        # below the conservative socket limits of the bundled macOS Python.
+        # Keep socket usage low.
         with ThreadPoolExecutor(max_workers=4) as executor:
             results = list(executor.map(request_candidate_ids, range(20)))
         self.assertTrue(results)
