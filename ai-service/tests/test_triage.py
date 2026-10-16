@@ -45,6 +45,29 @@ class TriageTests(unittest.TestCase):
         self.assertEqual("NEEDS_INFO", result.triage_status)
         self.assertIn("schedule", result.missing_fields)
 
+    def test_invalid_schedule_requests_more_information(self):
+        job = JobInput(
+            job_id="invalid-schedule",
+            description="Need a driver for an airport trip",
+            category_hint="driver_service",
+            location_text="Dhaka",
+            latitude=23.78,
+            longitude=90.40,
+            start_at="08/10/2026",
+            end_at="06/10/2026",
+        )
+        result = self.service.triage(job)
+        self.assertEqual("NEEDS_INFO", result.triage_status)
+        self.assertIn("schedule", result.missing_fields)
+        self.assertIn("INVALID_SCHEDULE", result.reason_codes)
+
+    def test_compound_typo_still_identifies_the_service_category(self):
+        category_id, hits = self.service.description_category(
+            "washmachine is leaking"
+        )
+        self.assertEqual("appliance_repair", category_id)
+        self.assertIn("washing machine", hits)
+
     def test_every_known_category_can_recommend_from_a_vague_description(self):
         for category in self.service.taxonomy["categories"]:
             with self.subTest(category_id=category["id"]):

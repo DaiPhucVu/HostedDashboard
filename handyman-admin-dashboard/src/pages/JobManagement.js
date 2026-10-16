@@ -19,7 +19,6 @@ import {
   orderByValue,
   query,
   ref,
-  remove,
   runTransaction,
   set,
   update,
@@ -48,6 +47,14 @@ import {
   formatTime,
 } from "../utils/jobPresentation";
 import { newestJobsFirst } from "../utils/jobSorting";
+import {
+  JOB_STATUS_OPTIONS,
+  canArchiveJob,
+  isAssignmentOpen,
+  jobStatusLabel,
+  normalizeJobStatus,
+} from "../utils/jobStatus";
+import { validateJobRanges } from "../utils/jobValidation";
 
 const USE_LOCAL_FIXTURES = process.env.REACT_APP_USE_LOCAL_FIXTURES === "true";
 const AI_REVIEW_CATEGORIES = JOB_CATEGORIES;
@@ -67,11 +74,6 @@ const ACTION_TONES = Object.freeze({
   red: { backgroundColor: "#f8ddd6", borderColor: "#dda493", color: "#893729" },
 });
 
-const isAssignmentOpen = (job) => {
-  const status = String(job?.jobStatus || "Open").trim().toLowerCase();
-  return !status || status === "open";
-};
-
 const isAiCategorySupported = (job) => {
   const rawCategory = String(job?.jobCat || job?.category || "").trim().toLowerCase();
   if (!rawCategory) return true;
@@ -82,8 +84,8 @@ const isAiCategorySupported = (job) => {
 
 const canCancelAssignment = (job) => {
   const providerId = job?.assignedTo || job?.assignment?.providerId || job?.assignment?.assignedTo || "";
-  const status = String(job?.jobStatus || "").trim().toLowerCase();
-  return Boolean(providerId) && ["", "open", "offered"].includes(status);
+  const status = normalizeJobStatus(job?.jobStatus, "Open");
+  return Boolean(providerId) && ["Open", "Offered"].includes(status);
 };
 
 const MANUAL_WARNING_LABELS = Object.freeze({
@@ -93,10 +95,10 @@ const MANUAL_WARNING_LABELS = Object.freeze({
 });
 
 const jobStatusTone = (status) => {
-  const normalized = String(status || "Open").toUpperCase();
-  if (["DONE", "COMPLETED"].includes(normalized)) return "mint";
-  if (normalized === "CANCELLED") return "red";
-  if (["OFFERED", "IN PROGRESS", "IN_PROGRESS"].includes(normalized)) return "blue";
+  const normalized = normalizeJobStatus(status, "Open");
+  if (normalized === "Done") return "mint";
+  if (["Cancelled", "Inactive"].includes(normalized)) return "red";
+  if (["Offered", "Accepted", "In-progress"].includes(normalized)) return "blue";
   return "amber";
 };
 
@@ -157,6 +159,8 @@ function JobManagement() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
+  const [deleteSaving, setDeleteSaving] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [assignCandidates, setAssignCandidates] = useState([]);
   const [reviewData, setReviewData] = useState([]);
@@ -371,9 +375,9 @@ function JobManagement() {
     const errors = {};
     if (!editedJob.jobCat) errors.jobCat = "Job category is required";
     if (!editedJob.jobDesc) errors.jobDesc = "Description is required";
-    if (!editedJob.jobStatus) errors.jobStatus = "Status is required";
     if (!editedJob.jobDateFrom) errors.jobDateFrom = "Start date is required";
     if (!editedJob.jobDateTo) errors.jobDateTo = "End date is required";
+    Object.assign(errors, validateJobRanges(editedJob));
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -381,7 +385,7 @@ function JobManagement() {
   const filteredJobs = jobData.filter((job) => {
     const matchesStatus =
       filterStatus === "All" ||
-      job.jobStatus?.toLowerCase() === filterStatus.toLowerCase();
+      normalizeJobStatus(job.jobStatus, "Open") === filterStatus;
     const matchesCategory =
       filterCategory === "All" ||
       job.jobCat?.toLowerCase() === filterCategory.toLowerCase();
@@ -392,6 +396,12 @@ function JobManagement() {
       job.jobId?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesCategory && matchesSearch;
   });
+
+  const filterCategories = [...new Map(
+    [...JOB_CATEGORIES, ...jobData.map((job) => String(job.jobCat || "").trim())]
+      .filter(Boolean)
+      .map((category) => [category.toLowerCase(), category])
+  ).values()];
 
   const startIndex = (currentPage - 1) * entriesPerPage;
   const currentJobs = filteredJobs.slice(
@@ -406,6 +416,7 @@ function JobManagement() {
     const jobRef = ref(database, "Job/" + editedJob.jobId);
     const updatedJob = {
       ...editedJob,
+      jobStatus: normalizeJobStatus(editedJob.jobStatus, "Open"),
       lastUpdated: new Date().toISOString(),
     };
 
@@ -469,7 +480,9 @@ function JobManagement() {
   };
 
   const handleDeleteClick = (job) => {
+    if (!canArchiveJob(job)) return;
     setJobToDelete(job);
+    setDeleteError("");
     setShowDeleteConfirm(true);
   };
 
@@ -555,7 +568,7 @@ function JobManagement() {
           await runTransaction(jobRef, (currentJob) => {
             if (
               currentJob?.assignedTo !== providerId ||
-              String(currentJob.jobStatus || "").trim().toLowerCase() !== "offered"
+              normalizeJobStatus(currentJob.jobStatus) !== "Offered"
             ) {
               return undefined;
             }
@@ -649,8 +662,8 @@ function JobManagement() {
             !currentJob ||
             !expectedProviderId ||
             currentProviderId !== expectedProviderId ||
-            !["", "open", "offered"].includes(
-              String(currentJob.jobStatus || "").trim().toLowerCase()
+            !["Open", "Offered"].includes(
+              normalizeJobStatus(currentJob.jobStatus, "Open")
             )
           ) {
             return undefined;
@@ -675,7 +688,7 @@ function JobManagement() {
           await runTransaction(jobRef, (currentJob) => {
             if (
               currentJob?.assignedTo ||
-              String(currentJob.jobStatus || "").trim().toLowerCase() !== "open"
+              normalizeJobStatus(currentJob.jobStatus, "Open") !== "Open"
             ) {
               return undefined;
             }
@@ -738,23 +751,60 @@ function JobManagement() {
     (provider.handymanId || provider.id) === viewedProviderId
   ) || null;
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!jobToDelete) return;
     const jobId = jobToDelete.jobId;
-    // Remove only from canonical Job node
-    const jobRef = ref(database, `Job/${jobId}`);
-    remove(jobRef)
-      .then(() => {
-        setShowDeleteConfirm(false);
-        setJobToDelete(null);
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 1500);
-      })
-      .catch((err) => {
-        console.error("Error deleting job:", err);
-        setShowDeleteConfirm(false);
-        setJobToDelete(null);
-      });
+    const archivedAt = new Date().toISOString();
+    setDeleteSaving(true);
+    setDeleteError("");
+    try {
+      if (USE_LOCAL_FIXTURES) {
+        updateJobData((jobs) => jobs.map((job) => job.jobId === jobId ? {
+          ...job,
+          jobStatus: "Inactive",
+          autoAssignmentDisabled: true,
+          autoAssignmentStatus: "ARCHIVED",
+          lastUpdated: archivedAt,
+        } : job));
+      } else {
+        const jobRef = ref(database, `Job/${jobId}`);
+        const result = await runTransaction(jobRef, (currentJob) => {
+          if (!currentJob || !canArchiveJob(currentJob)) {
+            return undefined;
+          }
+          return {
+            ...currentJob,
+            jobStatus: "Inactive",
+            autoAssignmentDisabled: true,
+            autoAssignmentStatus: "ARCHIVED",
+            autoAssignmentClaimId: null,
+            lastUpdated: archivedAt,
+          };
+        }, { applyLocally: false });
+        if (!result.committed) {
+          throw new Error("Only unassigned open jobs can be deleted.");
+        }
+        if (jobToDelete.customerId) {
+          const updates = {};
+          Object.assign(
+            updates,
+            await indexRemovalUpdates(`User/${jobToDelete.customerId}/notAssignedJobs`, jobId),
+            await indexRemovalUpdates(`User/${jobToDelete.customerId}/allJobs`, jobId)
+          );
+          updates[`User/${jobToDelete.customerId}/cancelledJobs/${jobId}`] = jobId;
+          await update(ref(database), updates);
+        }
+      }
+      setShowDeleteConfirm(false);
+      setJobToDelete(null);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1500);
+    } catch (error) {
+      console.error("Error deleting job:", error);
+      setDeleteError(error?.message || "The job could not be archived.");
+    } finally {
+      setDeleteSaving(false);
+    }
   };
 
   const handleReset = () => {
@@ -802,6 +852,10 @@ function JobManagement() {
                   "jobId",
                   "customerId",
                   "quotedHandymen",
+                  "assignedTo",
+                  "jobStatus",
+                  "jobStatusHandyman",
+                  "jobStatusCustomer",
                 ].includes(key) ? (
                   key === "jobCat" ? (
                     <Form.Select
@@ -815,24 +869,6 @@ function JobManagement() {
                       {AI_REVIEW_CATEGORIES.map((category) => (
                         <option key={category} value={category}>{category}</option>
                       ))}
-                    </Form.Select>
-                  ) : key === "jobStatus" ||
-                  key === "jobStatusCustomer" ||
-                  key === "jobStatusHandyman" ? (
-                    <Form.Select
-                      value={editedJob[key] || ""}
-                      onChange={(e) =>
-                        setEditedJob({ ...editedJob, [key]: e.target.value })
-                      }
-                      isInvalid={!!formErrors[key]}
-                    >
-                      <option value="" disabled hidden>
-                        Select Status
-                      </option>
-                      <option value="Open">Open</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Done">Done</option>
-                      <option value="Cancelled">Cancelled</option>
                     </Form.Select>
                   ) : (
                     <Form.Control
@@ -956,10 +992,9 @@ function JobManagement() {
               style={{ width: "150px" }}
             >
               <option value="All">All</option>
-              <option value="Open">Open</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Done">Done</option>
-              <option value="Cancelled">Cancelled</option>
+              {JOB_STATUS_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
             </Form.Select>
           </div>
           {/* Category Filter */}
@@ -974,8 +1009,8 @@ function JobManagement() {
               style={{ width: "200px" }}
             >
               <option value="All">All</option>
-              {JOB_CATEGORIES.map((cat, idx) => (
-                <option key={idx} value={cat}>
+              {filterCategories.map((cat) => (
+                <option key={cat.toLowerCase()} value={cat}>
                   {cat}
                 </option>
               ))}
@@ -1034,7 +1069,7 @@ function JobManagement() {
                 </td>
                 <td>
                   <SoftTag tone={jobStatusTone(job.jobStatus)}>
-                    {job.jobStatus || "Open"}
+                    {jobStatusLabel(job.jobStatus)}
                   </SoftTag>
                 </td>
                 <td>
@@ -1043,7 +1078,7 @@ function JobManagement() {
                     : 0}
                 </td>
                 <td>
-                  {job.jobStatus === "Done"
+                  {normalizeJobStatus(job.jobStatus) === "Done"
                     ? job.finishedBy || "Handyman"
                     : "—"}
                 </td>
@@ -1080,7 +1115,16 @@ function JobManagement() {
                               : "Assign"}
                       </SoftActionButton>
                     )}
-                    <SoftActionButton tone="red" onClick={() => handleDeleteClick(job)}>
+                    <SoftActionButton
+                      tone={canArchiveJob(job) ? "red" : "grey"}
+                      disabled={!canArchiveJob(job)}
+                      onClick={() => handleDeleteClick(job)}
+                      title={
+                        !canArchiveJob(job)
+                          ? "Only unassigned open jobs can be deleted"
+                          : "Archive this open job"
+                      }
+                    >
                       Delete
                     </SoftActionButton>
                   </div>
@@ -1149,7 +1193,12 @@ function JobManagement() {
             Close
           </Button>
           {!isEditMode ? (
-            <Button variant="warning" onClick={() => setIsEditMode(true)}>
+            <Button
+              variant="warning"
+              disabled={!canArchiveJob(editedJob)}
+              title={!canArchiveJob(editedJob) ? "Only unassigned open jobs can be edited" : ""}
+              onClick={() => setIsEditMode(true)}
+            >
               Edit
             </Button>
           ) : (
@@ -1172,16 +1221,26 @@ function JobManagement() {
       />
       <ConfirmModal
         show={showDeleteConfirm}
-        onHide={() => setShowDeleteConfirm(false)}
+        onHide={() => {
+          if (!deleteSaving) {
+            setShowDeleteConfirm(false);
+            setDeleteError("");
+          }
+        }}
         onConfirm={handleConfirmDelete}
-        title="Confirm Delete"
+        title="Confirm Archive"
         body={
-          jobToDelete
-            ? `Are you sure you want to delete job ${jobToDelete.jobId.slice(0, 8)}...? This action cannot be undone.`
-            : "Are you sure you want to delete this job?"
+          <>
+            <div>
+              {jobToDelete
+                ? `Archive job ${jobToDelete.jobId.slice(0, 8)}...? It will no longer be available for assignment.`
+                : "Are you sure you want to archive this job?"}
+            </div>
+            {deleteError && <Alert variant="danger" className="mt-3 mb-0 py-2">{deleteError}</Alert>}
+          </>
         }
-        loading={false}
-        confirmText="Delete"
+        loading={deleteSaving}
+        confirmText="Archive"
         cancelText="Cancel"
       />
       <ConfirmModal

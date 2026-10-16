@@ -4,6 +4,7 @@ import {
   humanize,
 } from "../domain/assignmentPresentation";
 import ProviderMatchCard from "./ProviderMatchCard";
+import { jobStatusLabel, normalizeJobStatus } from "../utils/jobStatus";
 
 const MATCHING_STAGES = [
   {
@@ -37,10 +38,10 @@ const tagPalette = {
 
 const urgencyTone = (urgency) => urgency === "CRITICAL" ? "red" : urgency === "HIGH" ? "yellow" : "green";
 const jobStatusTone = (status) => {
-  const normalized = String(status || "OPEN").trim().toUpperCase();
-  if (["DONE", "COMPLETED"].includes(normalized)) return "green";
-  if (["CANCELLED", "INACTIVE"].includes(normalized)) return "red";
-  if (["OFFERED", "ACCEPTED", "IN PROGRESS", "IN-PROGRESS"].includes(normalized)) return "blue";
+  const normalized = normalizeJobStatus(status, "Open");
+  if (normalized === "Done") return "green";
+  if (["Cancelled", "Inactive"].includes(normalized)) return "red";
+  if (["Offered", "Accepted", "In-progress"].includes(normalized)) return "blue";
   return "yellow";
 };
 
@@ -183,7 +184,7 @@ export default function AiAssignmentReview({
   return (
     <section aria-label="AI assignment review">
       <div className="d-flex flex-wrap gap-2 mb-3">
-        <Tag tone={jobStatusTone(jobStatus)}>Job status: {jobStatus || "Open"}</Tag>
+        <Tag tone={jobStatusTone(jobStatus)}>Job status: {jobStatusLabel(jobStatus)}</Tag>
         <Tag>Category: {triage.categoryId || "Unclear"}</Tag>
         <Tag tone={urgencyTone(triage.urgency)}>Urgency: {humanize(triage.urgency)}</Tag>
         <Tag tone={assignable ? "green" : "yellow"}>Status: {humanize(triage.triageStatus)}</Tag>

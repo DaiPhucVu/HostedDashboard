@@ -35,9 +35,6 @@ function App() {
           element={
             <div className="d-flex">
               <Sidebar />
-              {/* minWidth 0 is required: a flex item defaults to min-width:auto,
-                  so a wide table would force this column past the viewport and
-                  squash the sidebar instead of scrolling inside itself. */}
               <div className="flex-grow-1" style={{ minWidth: 0 }}>
                 <Routes>
                   <Route path="/dashboard" element={<Dashboard />} />

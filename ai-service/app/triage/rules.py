@@ -1,5 +1,7 @@
 import json
 import unicodedata
+from datetime import datetime
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -36,9 +38,7 @@ HIGH_TERMS = (
     "current nai",
 )
 
-# A short or unspecific description reduces certainty about the exact work, but
-# it should not hide providers when the broad service category is already known.
-# Location and schedule are still required before an AI-recommended assignment.
+# Broad categories can be ranked; location and schedule still block assignment.
 ASSIGNMENT_BLOCKING_MISSING_FIELDS = frozenset({"location", "schedule"})
 
 
@@ -74,7 +74,24 @@ def _matchable_text(value: str) -> str:
 
 def _matches_phrase(text: str, phrase: str) -> bool:
     value = _matchable_text(phrase)
-    return bool(value) and " {} ".format(value) in " {} ".format(text)
+    if not value:
+        return False
+    if " {} ".format(value) in " {} ".format(text):
+        return True
+
+    compact_value = value.replace(" ", "")
+    if not compact_value.isascii() or len(compact_value) < 7:
+        return False
+    tokens = text.split()
+    phrase_width = len(value.split())
+    for width in range(max(1, phrase_width - 1), phrase_width + 2):
+        for start in range(0, len(tokens) - width + 1):
+            candidate = "".join(tokens[start:start + width])
+            if abs(len(candidate) - len(compact_value)) > max(3, len(compact_value) // 4):
+                continue
+            if SequenceMatcher(None, candidate, compact_value).ratio() >= 0.87:
+                return True
+    return False
 
 
 def detect_language(text: str) -> str:
@@ -87,6 +104,32 @@ def detect_language(text: str) -> str:
     if has_latin:
         return "en"
     return "unknown"
+
+
+def _schedule_date(value: Optional[str]) -> Optional[datetime]:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        pass
+    for pattern in ("%d/%m/%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(text, pattern)
+        except ValueError:
+            continue
+    return None
+
+
+def _valid_schedule(job: JobInput) -> bool:
+    start = _schedule_date(job.start_at)
+    if start is None:
+        return False
+    if not job.end_at:
+        return True
+    end = _schedule_date(job.end_at)
+    return end is not None and end.date() >= start.date()
 
 
 class RuleTriageService:
@@ -149,7 +192,8 @@ class RuleTriageService:
             missing.append("description")
         if not job.location_text or job.latitude is None or job.longitude is None:
             missing.append("location")
-        if not job.start_at:
+        valid_schedule = _valid_schedule(job)
+        if not valid_schedule:
             missing.append("schedule")
 
         urgency = "NORMAL"
@@ -170,6 +214,8 @@ class RuleTriageService:
             reason_codes.append("URGENCY_RULE_MATCH")
         if missing:
             reason_codes.append("MISSING_REQUIRED_FIELDS")
+        if job.start_at and not valid_schedule:
+            reason_codes.append("INVALID_SCHEDULE")
         if category_id is None:
             reason_codes.append("UNKNOWN_CATEGORY")
 

@@ -6,6 +6,7 @@ import StickyHeader from "../components/StickyHeader";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/ServiceAnalytics.css";
+import { normalizeJobStatus } from "../utils/jobStatus";
 
 const monthsOrder = [
   "January", "February", "March", "April",
@@ -69,9 +70,10 @@ const ServiceAnalytics = () => {
         let completed = 0, inProgress = 0, cancelled = 0;
         
         Object.values(jobs).forEach(job => {
-          if (job.jobStatus === "Done") completed++;
-          else if (job.jobStatus === "In Progress") inProgress++;
-          else if (job.jobStatus === "Cancelled") cancelled++;
+          const status = normalizeJobStatus(job.jobStatus);
+          if (status === "Done") completed++;
+          else if (status === "In-progress") inProgress++;
+          else if (status === "Cancelled") cancelled++;
         });
         
         setJobStats({ completed, inProgress, cancelled });

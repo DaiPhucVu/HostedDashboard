@@ -1,3 +1,5 @@
+import { jobStatusLabel } from "./jobStatus";
+
 export const JOB_FIELD_LABELS = Object.freeze({
   jobCat: "Job category",
   jobDesc: "Description",
@@ -80,6 +82,9 @@ export function formatReference(value) {
 }
 
 export function formatJobField(key, value) {
+  if (["jobStatus", "jobStatusHandyman", "jobStatusCustomer"].includes(key)) {
+    return jobStatusLabel(value, "—");
+  }
   if (["jobDateFrom", "jobDateTo"].includes(key)) return formatDate(value);
   if (["jobTimeFrom", "jobTimeTo"].includes(key)) return formatTime(value);
   if (["createdAt", "lastUpdated"].includes(key)) return formatDateTime(value);

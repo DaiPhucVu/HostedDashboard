@@ -377,9 +377,15 @@ class SemanticRagTriageService:
         fts5_grounded = bool(category_id) and any(
             item.category_id == category_id for item in evidence
         )
+        rule_grounded = bool(category_id) and (
+            rule_category_id == category_id and bool(rule_hits)
+        )
         category_hint_grounded = bool(category_id) and category_id == category_hint_id
         if fts5_grounded:
             reason_codes.append("FTS5_EVIDENCE_GROUNDED")
+            confidence = min(confidence, 0.95)
+        elif rule_grounded:
+            reason_codes.append("CATEGORY_RULE_GROUNDED")
             confidence = min(confidence, 0.95)
         elif category_hint_grounded:
             reason_codes.append("CATEGORY_HINT_GROUNDED")

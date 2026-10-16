@@ -1,32 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, onValue } from "firebase/database";
+import { normalizeJobStatus } from "../utils/jobStatus";
 
 const JobCategoryStats = () => {
   const [jobStats, setJobStats] = useState([]);
 
   useEffect(() => {
     const db = getDatabase();
-    const jobRef = ref(db, "Job"); // adjust if path is different
+    const jobRef = ref(db, "Job");
 
-    onValue(jobRef, (snapshot) => {
-      const data = snapshot.val();
+    const unsubscribe = onValue(jobRef, (snapshot) => {
+      const data = snapshot.val() || {};
       const categoryMap = {};
 
       for (const jobId in data) {
         const job = data[jobId];
         const cat = job.jobCat || "Uncategorized";
-        const status = job.jobStatus || "";
+        const status = normalizeJobStatus(job.jobStatus);
 
         if (!categoryMap[cat]) {
           categoryMap[cat] = { active: 0, quoted: 0 };
         }
 
-        // Count Active jobs
-        if (status !== "Done" && status !== "Cancelled" && status !== "Inactive") {
+        if (!["Done", "Cancelled", "Inactive"].includes(status)) {
           categoryMap[cat].active += 1;
         }
 
-        // Count Being Quoted jobs
         const quotes = job.quotedHandymen || [];
         const quoteCount = Array.isArray(quotes)
           ? quotes.length
@@ -37,7 +36,6 @@ const JobCategoryStats = () => {
         }
       }
 
-      // Convert to array and sort
       const sortedStats = Object.entries(categoryMap)
         .map(([category, stats]) => ({
           category,
@@ -49,6 +47,7 @@ const JobCategoryStats = () => {
 
       setJobStats(sortedStats);
     });
+    return unsubscribe;
   }, []);
 
   return (

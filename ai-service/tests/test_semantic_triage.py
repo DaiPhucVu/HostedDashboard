@@ -278,6 +278,40 @@ class SemanticRagTriageTests(unittest.TestCase):
         self.assertEqual("WASHING_MACHINE_ENTITY", result.override_reason)
         self.assertIn("CATEGORY_SEMANTIC_OVERRIDE", result.reason_codes)
 
+    def test_semantic_override_accepts_a_grounded_compound_typo(self):
+        client = FakeSemanticClient(semantic_result(
+            category_id="appliance_repair",
+            required_skills=["appliance_repair"],
+            urgency="NORMAL",
+            issue_summary="Washing machine is leaking.",
+            extracted_issues=["washing machine", "leaking"],
+            safety_flags=[],
+            confidence=0.92,
+        ))
+        empty_index = Fts5KnowledgeIndex([])
+        service = SemanticRagTriageService(
+            self.taxonomy,
+            empty_index,
+            client,
+            RuleTriageService(self.taxonomy, empty_index),
+        )
+        job = JobInput(
+            job_id="compound-typo",
+            description="washmachine is leaking",
+            category_hint="ac_repair",
+            location_text="Dhaka",
+            latitude=23.78,
+            longitude=90.40,
+            start_at="2026-10-16",
+        )
+
+        result = service.triage(job)
+
+        self.assertEqual("appliance_repair", result.category_id)
+        self.assertEqual("READY_FOR_ASSIGNMENT", result.triage_status)
+        self.assertEqual("SEMANTIC_OVERRIDE", result.category_decision)
+        self.assertIn("CATEGORY_RULE_GROUNDED", result.reason_codes)
+
     def test_high_confidence_without_keyword_agreement_keeps_manual_review(self):
         client = FakeSemanticClient(semantic_result(
             category_id="appliance_repair",
