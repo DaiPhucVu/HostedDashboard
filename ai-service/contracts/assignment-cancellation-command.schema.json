@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://handyman.local/contracts/assignment-cancellation-command.schema.json",
+  "title": "AssignmentCancellationCommand",
+  "type": "object",
+  "required": ["jobId", "assignmentId", "actorId", "expectedJobVersion"],
+  "additionalProperties": false,
+  "properties": {
+    "jobId": {"type": "string", "minLength": 1},
+    "assignmentId": {"type": "string", "minLength": 1},
+    "actorId": {"type": "string", "minLength": 1},
+    "expectedJobVersion": {"type": "integer", "minimum": 1},
+    "reason": {"type": ["string", "null"]}
+  }
+}

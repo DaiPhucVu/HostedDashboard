@@ -1,0 +1,814 @@
+[
+  {
+    "caseId": "eval-v2-case-plumbing-broad",
+    "categoryId": "plumbing",
+    "job": {
+      "jobId": "eval-v2-case-plumbing-broad",
+      "description": "I need help with plumbing.",
+      "categoryHint": "plumbing",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "plumbing",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-plumbing-01",
+      "eval-v2-plumbing-02",
+      "eval-v2-plumbing-03",
+      "eval-v2-plumbing-04",
+      "eval-v2-plumbing-05",
+      "eval-v2-plumbing-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-plumbing-specific",
+    "categoryId": "plumbing",
+    "job": {
+      "jobId": "eval-v2-case-plumbing-specific",
+      "description": "Repaired a leaking kitchen pipe and tested the water line.",
+      "categoryHint": "plumbing",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "plumbing",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-plumbing-01",
+      "eval-v2-plumbing-02",
+      "eval-v2-plumbing-03",
+      "eval-v2-plumbing-04",
+      "eval-v2-plumbing-05",
+      "eval-v2-plumbing-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-electrical-broad",
+    "categoryId": "electrical",
+    "job": {
+      "jobId": "eval-v2-case-electrical-broad",
+      "description": "I need help with electrical.",
+      "categoryHint": "electrical",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "electrical",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-electrical-01",
+      "eval-v2-electrical-02",
+      "eval-v2-electrical-03",
+      "eval-v2-electrical-04",
+      "eval-v2-electrical-05",
+      "eval-v2-electrical-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-electrical-specific",
+    "categoryId": "electrical",
+    "job": {
+      "jobId": "eval-v2-case-electrical-specific",
+      "description": "Diagnosed a socket fault and replaced damaged wiring.",
+      "categoryHint": "electrical",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "electrical",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-electrical-01",
+      "eval-v2-electrical-02",
+      "eval-v2-electrical-03",
+      "eval-v2-electrical-04",
+      "eval-v2-electrical-05",
+      "eval-v2-electrical-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-cleaning-broad",
+    "categoryId": "cleaning",
+    "job": {
+      "jobId": "eval-v2-case-cleaning-broad",
+      "description": "I need help with cleaning.",
+      "categoryHint": "cleaning",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "cleaning",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-cleaning-01",
+      "eval-v2-cleaning-02",
+      "eval-v2-cleaning-03",
+      "eval-v2-cleaning-04",
+      "eval-v2-cleaning-05",
+      "eval-v2-cleaning-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-cleaning-specific",
+    "categoryId": "cleaning",
+    "job": {
+      "jobId": "eval-v2-case-cleaning-specific",
+      "description": "Completed a deep clean of a two-bedroom apartment.",
+      "categoryHint": "cleaning",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "cleaning",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-cleaning-01",
+      "eval-v2-cleaning-02",
+      "eval-v2-cleaning-03",
+      "eval-v2-cleaning-04",
+      "eval-v2-cleaning-05",
+      "eval-v2-cleaning-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-appliance_repair-broad",
+    "categoryId": "appliance_repair",
+    "job": {
+      "jobId": "eval-v2-case-appliance_repair-broad",
+      "description": "I need help with appliance repair.",
+      "categoryHint": "appliance_repair",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "appliance_repair",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-appliance_repair-01",
+      "eval-v2-appliance_repair-02",
+      "eval-v2-appliance_repair-03",
+      "eval-v2-appliance_repair-04",
+      "eval-v2-appliance_repair-05",
+      "eval-v2-appliance_repair-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-appliance_repair-specific",
+    "categoryId": "appliance_repair",
+    "job": {
+      "jobId": "eval-v2-case-appliance_repair-specific",
+      "description": "Diagnosed and repaired a washing machine drainage fault.",
+      "categoryHint": "appliance_repair",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "appliance_repair",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-appliance_repair-01",
+      "eval-v2-appliance_repair-02",
+      "eval-v2-appliance_repair-03",
+      "eval-v2-appliance_repair-04",
+      "eval-v2-appliance_repair-05",
+      "eval-v2-appliance_repair-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-painting-broad",
+    "categoryId": "painting",
+    "job": {
+      "jobId": "eval-v2-case-painting-broad",
+      "description": "I need help with painting and renovation.",
+      "categoryHint": "painting",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "painting",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-painting-01",
+      "eval-v2-painting-02",
+      "eval-v2-painting-03",
+      "eval-v2-painting-04",
+      "eval-v2-painting-05",
+      "eval-v2-painting-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-painting-specific",
+    "categoryId": "painting",
+    "job": {
+      "jobId": "eval-v2-case-painting-specific",
+      "description": "Prepared and painted interior bedroom walls.",
+      "categoryHint": "painting",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "painting",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-painting-01",
+      "eval-v2-painting-02",
+      "eval-v2-painting-03",
+      "eval-v2-painting-04",
+      "eval-v2-painting-05",
+      "eval-v2-painting-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-ac_repair-broad",
+    "categoryId": "ac_repair",
+    "job": {
+      "jobId": "eval-v2-case-ac_repair-broad",
+      "description": "I need help with a/c repair services.",
+      "categoryHint": "ac_repair",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "ac_repair",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-ac_repair-01",
+      "eval-v2-ac_repair-02",
+      "eval-v2-ac_repair-03",
+      "eval-v2-ac_repair-04",
+      "eval-v2-ac_repair-05",
+      "eval-v2-ac_repair-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-ac_repair-specific",
+    "categoryId": "ac_repair",
+    "job": {
+      "jobId": "eval-v2-case-ac_repair-specific",
+      "description": "Serviced an air conditioner and restored normal cooling.",
+      "categoryHint": "ac_repair",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "ac_repair",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-ac_repair-01",
+      "eval-v2-ac_repair-02",
+      "eval-v2-ac_repair-03",
+      "eval-v2-ac_repair-04",
+      "eval-v2-ac_repair-05",
+      "eval-v2-ac_repair-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-beauty_wellness-broad",
+    "categoryId": "beauty_wellness",
+    "job": {
+      "jobId": "eval-v2-case-beauty_wellness-broad",
+      "description": "I need help with beauty and wellness.",
+      "categoryHint": "beauty_wellness",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "beauty_wellness",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-beauty_wellness-01",
+      "eval-v2-beauty_wellness-02",
+      "eval-v2-beauty_wellness-03",
+      "eval-v2-beauty_wellness-04",
+      "eval-v2-beauty_wellness-05",
+      "eval-v2-beauty_wellness-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-beauty_wellness-specific",
+    "categoryId": "beauty_wellness",
+    "job": {
+      "jobId": "eval-v2-case-beauty_wellness-specific",
+      "description": "Provided a booked facial and skincare service.",
+      "categoryHint": "beauty_wellness",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "beauty_wellness",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-beauty_wellness-01",
+      "eval-v2-beauty_wellness-02",
+      "eval-v2-beauty_wellness-03",
+      "eval-v2-beauty_wellness-04",
+      "eval-v2-beauty_wellness-05",
+      "eval-v2-beauty_wellness-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-shifting-broad",
+    "categoryId": "shifting",
+    "job": {
+      "jobId": "eval-v2-case-shifting-broad",
+      "description": "I need help with shifting.",
+      "categoryHint": "shifting",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "shifting",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-shifting-01",
+      "eval-v2-shifting-02",
+      "eval-v2-shifting-03",
+      "eval-v2-shifting-04",
+      "eval-v2-shifting-05",
+      "eval-v2-shifting-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-shifting-specific",
+    "categoryId": "shifting",
+    "job": {
+      "jobId": "eval-v2-case-shifting-specific",
+      "description": "Packed and moved household furniture to a new apartment.",
+      "categoryHint": "shifting",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "shifting",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-shifting-01",
+      "eval-v2-shifting-02",
+      "eval-v2-shifting-03",
+      "eval-v2-shifting-04",
+      "eval-v2-shifting-05",
+      "eval-v2-shifting-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-mens_care_salon-broad",
+    "categoryId": "mens_care_salon",
+    "job": {
+      "jobId": "eval-v2-case-mens_care_salon-broad",
+      "description": "I need help with men's care and salon.",
+      "categoryHint": "mens_care_salon",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "mens_care_salon",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-mens_care_salon-01",
+      "eval-v2-mens_care_salon-02",
+      "eval-v2-mens_care_salon-03",
+      "eval-v2-mens_care_salon-04",
+      "eval-v2-mens_care_salon-05",
+      "eval-v2-mens_care_salon-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-mens_care_salon-specific",
+    "categoryId": "mens_care_salon",
+    "job": {
+      "jobId": "eval-v2-case-mens_care_salon-specific",
+      "description": "Provided a haircut and beard trim appointment.",
+      "categoryHint": "mens_care_salon",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "mens_care_salon",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-mens_care_salon-01",
+      "eval-v2-mens_care_salon-02",
+      "eval-v2-mens_care_salon-03",
+      "eval-v2-mens_care_salon-04",
+      "eval-v2-mens_care_salon-05",
+      "eval-v2-mens_care_salon-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-health_care-broad",
+    "categoryId": "health_care",
+    "job": {
+      "jobId": "eval-v2-case-health_care-broad",
+      "description": "I need help with health and care.",
+      "categoryHint": "health_care",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "health_care",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-health_care-01",
+      "eval-v2-health_care-02",
+      "eval-v2-health_care-03",
+      "eval-v2-health_care-04",
+      "eval-v2-health_care-05",
+      "eval-v2-health_care-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-health_care-specific",
+    "categoryId": "health_care",
+    "job": {
+      "jobId": "eval-v2-case-health_care-specific",
+      "description": "Provided scheduled daytime elderly home care.",
+      "categoryHint": "health_care",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "health_care",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-health_care-01",
+      "eval-v2-health_care-02",
+      "eval-v2-health_care-03",
+      "eval-v2-health_care-04",
+      "eval-v2-health_care-05",
+      "eval-v2-health_care-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-electronics_repair-broad",
+    "categoryId": "electronics_repair",
+    "job": {
+      "jobId": "eval-v2-case-electronics_repair-broad",
+      "description": "I need help with electronics and gadget repair.",
+      "categoryHint": "electronics_repair",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "electronics_repair",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-electronics_repair-01",
+      "eval-v2-electronics_repair-02",
+      "eval-v2-electronics_repair-03",
+      "eval-v2-electronics_repair-04",
+      "eval-v2-electronics_repair-05",
+      "eval-v2-electronics_repair-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-electronics_repair-specific",
+    "categoryId": "electronics_repair",
+    "job": {
+      "jobId": "eval-v2-case-electronics_repair-specific",
+      "description": "Diagnosed and repaired a laptop startup fault.",
+      "categoryHint": "electronics_repair",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "electronics_repair",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-electronics_repair-01",
+      "eval-v2-electronics_repair-02",
+      "eval-v2-electronics_repair-03",
+      "eval-v2-electronics_repair-04",
+      "eval-v2-electronics_repair-05",
+      "eval-v2-electronics_repair-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-pest_control-broad",
+    "categoryId": "pest_control",
+    "job": {
+      "jobId": "eval-v2-case-pest_control-broad",
+      "description": "I need help with pest control.",
+      "categoryHint": "pest_control",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "pest_control",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-pest_control-01",
+      "eval-v2-pest_control-02",
+      "eval-v2-pest_control-03",
+      "eval-v2-pest_control-04",
+      "eval-v2-pest_control-05",
+      "eval-v2-pest_control-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-pest_control-specific",
+    "categoryId": "pest_control",
+    "job": {
+      "jobId": "eval-v2-case-pest_control-specific",
+      "description": "Completed a kitchen cockroach control treatment.",
+      "categoryHint": "pest_control",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "pest_control",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-pest_control-01",
+      "eval-v2-pest_control-02",
+      "eval-v2-pest_control-03",
+      "eval-v2-pest_control-04",
+      "eval-v2-pest_control-05",
+      "eval-v2-pest_control-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-driver_service-broad",
+    "categoryId": "driver_service",
+    "job": {
+      "jobId": "eval-v2-case-driver_service-broad",
+      "description": "I need help with driver service.",
+      "categoryHint": "driver_service",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "driver_service",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-driver_service-01",
+      "eval-v2-driver_service-02",
+      "eval-v2-driver_service-03",
+      "eval-v2-driver_service-04",
+      "eval-v2-driver_service-05",
+      "eval-v2-driver_service-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-driver_service-specific",
+    "categoryId": "driver_service",
+    "job": {
+      "jobId": "eval-v2-case-driver_service-specific",
+      "description": "Completed a scheduled family driving service.",
+      "categoryHint": "driver_service",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "driver_service",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-driver_service-01",
+      "eval-v2-driver_service-02",
+      "eval-v2-driver_service-03",
+      "eval-v2-driver_service-04",
+      "eval-v2-driver_service-05",
+      "eval-v2-driver_service-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-car_care-broad",
+    "categoryId": "car_care",
+    "job": {
+      "jobId": "eval-v2-case-car_care-broad",
+      "description": "I need help with car care services.",
+      "categoryHint": "car_care",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "car_care",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-car_care-01",
+      "eval-v2-car_care-02",
+      "eval-v2-car_care-03",
+      "eval-v2-car_care-04",
+      "eval-v2-car_care-05",
+      "eval-v2-car_care-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-car_care-specific",
+    "categoryId": "car_care",
+    "job": {
+      "jobId": "eval-v2-case-car_care-specific",
+      "description": "Completed a vehicle service and engine oil change.",
+      "categoryHint": "car_care",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "car_care",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-car_care-01",
+      "eval-v2-car_care-02",
+      "eval-v2-car_care-03",
+      "eval-v2-car_care-04",
+      "eval-v2-car_care-05",
+      "eval-v2-car_care-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-trips_travel-broad",
+    "categoryId": "trips_travel",
+    "job": {
+      "jobId": "eval-v2-case-trips_travel-broad",
+      "description": "I need help with trips and travel.",
+      "categoryHint": "trips_travel",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "trips_travel",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-trips_travel-01",
+      "eval-v2-trips_travel-02",
+      "eval-v2-trips_travel-03",
+      "eval-v2-trips_travel-04",
+      "eval-v2-trips_travel-05",
+      "eval-v2-trips_travel-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-trips_travel-specific",
+    "categoryId": "trips_travel",
+    "job": {
+      "jobId": "eval-v2-case-trips_travel-specific",
+      "description": "Planned and booked a three-day family trip.",
+      "categoryHint": "trips_travel",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "trips_travel",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-trips_travel-01",
+      "eval-v2-trips_travel-02",
+      "eval-v2-trips_travel-03",
+      "eval-v2-trips_travel-04",
+      "eval-v2-trips_travel-05",
+      "eval-v2-trips_travel-06"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-car_rental-broad",
+    "categoryId": "car_rental",
+    "job": {
+      "jobId": "eval-v2-case-car_rental-broad",
+      "description": "I need help with car rental.",
+      "categoryHint": "car_rental",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "car_rental",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-car_rental-01",
+      "eval-v2-car_rental-02",
+      "eval-v2-car_rental-03",
+      "eval-v2-car_rental-04",
+      "eval-v2-car_rental-05"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-car_rental-specific",
+    "categoryId": "car_rental",
+    "job": {
+      "jobId": "eval-v2-case-car_rental-specific",
+      "description": "Completed a one-day five-seat vehicle rental.",
+      "categoryHint": "car_rental",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "car_rental",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-car_rental-01",
+      "eval-v2-car_rental-02",
+      "eval-v2-car_rental-03",
+      "eval-v2-car_rental-04",
+      "eval-v2-car_rental-05"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-emergency_service-broad",
+    "categoryId": "emergency_service",
+    "job": {
+      "jobId": "eval-v2-case-emergency_service-broad",
+      "description": "I need help with emergency service.",
+      "categoryHint": "emergency_service",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-10",
+      "endAt": "2026-10-10"
+    },
+    "expectedCategoryId": "emergency_service",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-emergency_service-01",
+      "eval-v2-emergency_service-02",
+      "eval-v2-emergency_service-03",
+      "eval-v2-emergency_service-04",
+      "eval-v2-emergency_service-05"
+    ]
+  },
+  {
+    "caseId": "eval-v2-case-emergency_service-specific",
+    "categoryId": "emergency_service",
+    "job": {
+      "jobId": "eval-v2-case-emergency_service-specific",
+      "description": "Provided urgent roadside assistance.",
+      "categoryHint": "emergency_service",
+      "locationText": "Gulshan, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
+      "startAt": "2026-10-11",
+      "endAt": "2026-10-11"
+    },
+    "expectedCategoryId": "emergency_service",
+    "expectedCandidateMinimum": 4,
+    "expectedRelevantProviderIds": [
+      "eval-v2-emergency_service-01",
+      "eval-v2-emergency_service-02",
+      "eval-v2-emergency_service-03",
+      "eval-v2-emergency_service-04",
+      "eval-v2-emergency_service-05"
+    ]
+  }
+]

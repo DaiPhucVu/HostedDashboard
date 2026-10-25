@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import { ref, onValue } from "firebase/database";
 import { database } from "../firebase";
 import "../styles/DashboardContent.css";
-import userData from "../data/userData";
-
-import JobCategoryStats from "../components/JobCategoryStats"; 
 import StickyHeader from "../components/StickyHeader";
 
 import {
@@ -24,7 +21,13 @@ const iconMap = {
   CheckCircleIcon: Check,
 };
 
-const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+const currentUser = (() => {
+  try {
+    return JSON.parse(localStorage.getItem("currentUser"));
+  } catch {
+    return null;
+  }
+})();
 const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#3b82f6'];
 
 const Dashboard = () => {

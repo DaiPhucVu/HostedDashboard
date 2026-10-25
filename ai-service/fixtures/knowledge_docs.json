@@ -1,0 +1,142 @@
+[
+  {
+    "docId": "policy-plumbing",
+    "categoryId": "plumbing",
+    "title": "Plumbing service policy",
+    "body": "Use plumbing for pipe, tap, faucet and water leak repair. পাইপ, কল, পানি লিক এবং প্লাম্বিং মেরামত এই বিভাগে পড়ে।",
+    "keywords": "plumber plumbing pipe tap faucet water leak পানি লিক পাইপ কল pani leak"
+  },
+  {
+    "docId": "policy-electrical",
+    "categoryId": "electrical",
+    "title": "Electrical service policy",
+    "body": "Use electrical for sockets, wiring, power failure and sparking. সকেট, তার, বিদ্যুৎ এবং স্পার্কের কাজ ইলেকট্রিক্যাল বিভাগে পড়ে।",
+    "keywords": "electrician electrical socket wire power sparking ইলেকট্রিক বিদ্যুৎ তার সকেট স্পার্ক current nai"
+  },
+  {
+    "docId": "policy-cleaning",
+    "categoryId": "cleaning",
+    "title": "Cleaning service policy",
+    "body": "Use cleaning for home, kitchen and deep cleaning. বাসা, রান্নাঘর এবং সাধারণ পরিষ্কার-পরিচ্ছন্নতার কাজ এই বিভাগে পড়ে।",
+    "keywords": "clean cleaning deep clean kitchen home পরিষ্কার ক্লিনিং বাসা basha clean"
+  },
+  {
+    "docId": "policy-appliance",
+    "categoryId": "appliance_repair",
+    "title": "Appliance repair policy",
+    "body": "Use appliance repair for refrigerators, washing machines and ovens. ফ্রিজ, ওয়াশিং মেশিন এবং অন্যান্য গৃহস্থালি যন্ত্র মেরামত এই বিভাগে পড়ে।",
+    "keywords": "appliance repair fridge refrigerator washing machine oven ফ্রিজ ওয়াশিং মেশিন fridge thanda na"
+  },
+  {
+    "docId": "policy-painting",
+    "categoryId": "painting",
+    "title": "Painting and renovation policy",
+    "body": "Use painting for walls, colour work and minor renovation. দেয়াল রং, পেইন্ট এবং ছোট সংস্কারের কাজ এই বিভাগে পড়ে।",
+    "keywords": "paint painting wall colour renovation রং পেইন্ট দেয়াল wall rong"
+  },
+  {
+    "docId": "guide-electrical-burning-smell",
+    "categoryId": "electrical",
+    "title": "Electrical burning smell safety guidance",
+    "body": "A burning smell from a wall outlet, socket or wiring can indicate overheating or an electrical fault. Classify the service as electrical and treat smoke, visible fire or electrocution risk as critical urgency.",
+    "keywords": "burning smell wall outlet socket overheating electrical fault smoke fire wiring পোড়া গন্ধ সকেট তার"
+  },
+  {
+    "docId": "rule-electrical-socket-fault",
+    "categoryId": "electrical",
+    "title": "Socket and wall outlet fault rules",
+    "body": "Sparking, heat, buzzing, discolouration or loss of power at a socket or wall outlet requires an electrical provider. Burning smell and smoke are escalation signals.",
+    "keywords": "socket wall outlet sparking heat buzzing burning smell smoke power electrical সকেট স্পার্ক বিদ্যুৎ"
+  },
+  {
+    "docId": "policy-electrical-emergency-escalation",
+    "categoryId": "electrical",
+    "title": "Electrical emergency escalation policy",
+    "body": "Electrical jobs mentioning smoke, fire, electrocution, active sparking or a strong burning smell should be prioritised. Semantic triage may flag the hazard, but assignment eligibility remains controlled by deterministic provider rules.",
+    "keywords": "electrical emergency escalation smoke fire electrocution sparking burning smell urgent critical বিদ্যুৎস্পৃষ্ট আগুন ধোঁয়া"
+  },
+  {
+    "docId": "policy-ac-repair",
+    "categoryId": "ac_repair",
+    "title": "A/C repair service policy",
+    "body": "Use A/C repair for air conditioners with cooling failure, water leakage, unusual noise or servicing needs. এসি ঠান্ডা না করা, পানি পড়া বা সার্ভিসিং এই বিভাগে পড়ে।",
+    "keywords": "a/c repair ac repair air conditioner cooling servicing water leak noise এসি এয়ার কন্ডিশনার ac thanda na"
+  },
+  {
+    "docId": "policy-beauty-wellness",
+    "categoryId": "beauty_wellness",
+    "title": "Beauty and wellness service policy",
+    "body": "Use beauty and wellness for makeup, facial, spa and personal beauty services. মেকআপ, ফেসিয়াল, স্পা ও সৌন্দর্য পরিচর্যা এই বিভাগে পড়ে।",
+    "keywords": "beauty wellness makeup facial spa personal care সৌন্দর্য মেকআপ ফেসিয়াল স্পা"
+  },
+  {
+    "docId": "policy-shifting",
+    "categoryId": "shifting",
+    "title": "Shifting service policy",
+    "body": "Use shifting for packing, moving a home or office and transporting furniture. বাসা বা অফিস বদল, প্যাকিং এবং আসবাব সরানো এই বিভাগে পড়ে।",
+    "keywords": "shifting house moving office moving packing furniture transport বাসা বদল প্যাকিং আসবাব basha shift"
+  },
+  {
+    "docId": "policy-mens-care-salon",
+    "categoryId": "mens_care_salon",
+    "title": "Men's care and salon service policy",
+    "body": "Use men's care and salon for haircuts, shaving, grooming and barber services. পুরুষদের চুল কাটা, শেভ ও সেলুন সেবা এই বিভাগে পড়ে।",
+    "keywords": "men's care mens salon haircut shaving grooming barber চুল কাটা শেভ সেলুন"
+  },
+  {
+    "docId": "policy-health-care",
+    "categoryId": "health_care",
+    "title": "Health and care service policy",
+    "body": "Use health and care for non-emergency home caregiving, elderly support and patient assistance. সাধারণ হোম কেয়ার, রোগীর যত্ন ও বয়স্ক পরিচর্যা এই বিভাগে পড়ে। Medical emergencies require the appropriate emergency service.",
+    "keywords": "health care home caregiver elderly patient assistance স্বাস্থ্যসেবা রোগীর যত্ন বয়স্ক পরিচর্যা"
+  },
+  {
+    "docId": "policy-electronics-repair",
+    "categoryId": "electronics_repair",
+    "title": "Electronics and gadget repair policy",
+    "body": "Use electronics and gadget repair for phones, laptops and other personal electronic devices. মোবাইল, ল্যাপটপ ও অন্যান্য ইলেকট্রনিক ডিভাইস মেরামত এই বিভাগে পড়ে।",
+    "keywords": "electronics gadget phone mobile laptop device repair ইলেকট্রনিক্স মোবাইল ল্যাপটপ মেরামত"
+  },
+  {
+    "docId": "policy-pest-control",
+    "categoryId": "pest_control",
+    "title": "Pest control service policy",
+    "body": "Use pest control for cockroaches, termites, rodents, bed bugs and household pest treatment. তেলাপোকা, উইপোকা, ইঁদুর ও অন্যান্য কীটপতঙ্গ নিয়ন্ত্রণ এই বিভাগে পড়ে।",
+    "keywords": "pest control cockroach termite rodent rats bed bugs কীটপতঙ্গ তেলাপোকা ইঁদুর উইপোকা"
+  },
+  {
+    "docId": "policy-driver-service",
+    "categoryId": "driver_service",
+    "title": "Driver service policy",
+    "body": "Use driver service when a customer needs a licensed driver for their own or an arranged vehicle. ব্যক্তিগত বা নির্ধারিত গাড়ির জন্য চালক প্রয়োজন হলে এই বিভাগ ব্যবহার করুন।",
+    "keywords": "driver service hire driver personal driver chauffeur চালক ড্রাইভার driver dorkar"
+  },
+  {
+    "docId": "policy-car-care",
+    "categoryId": "car_care",
+    "title": "Car care service policy",
+    "body": "Use car care for vehicle servicing, washing, detailing and mechanical maintenance. গাড়ি সার্ভিস, ধোয়া, ডিটেইলিং ও যান্ত্রিক রক্ষণাবেক্ষণ এই বিভাগে পড়ে।",
+    "keywords": "car care car service vehicle maintenance car wash detailing mechanic গাড়ি সার্ভিস গাড়ি ধোয়া মেকানিক"
+  },
+  {
+    "docId": "policy-trips-travel",
+    "categoryId": "trips_travel",
+    "title": "Trips and travel service policy",
+    "body": "Use trips and travel for tour planning, guides, travel bookings and trip packages. ট্যুর পরিকল্পনা, গাইড, বুকিং ও ভ্রমণ প্যাকেজ এই বিভাগে পড়ে।",
+    "keywords": "trips travel tour planning guide booking package ভ্রমণ ট্যুর ট্রিপ"
+  },
+  {
+    "docId": "policy-car-rental",
+    "categoryId": "car_rental",
+    "title": "Car rental service policy",
+    "body": "Use car rental when a customer wants to rent or hire a vehicle for a period of time. নির্দিষ্ট সময়ের জন্য গাড়ি ভাড়া নিতে হলে এই বিভাগ ব্যবহার করুন।",
+    "keywords": "car rental rent car hire vehicle গাড়ি ভাড়া car vara"
+  },
+  {
+    "docId": "policy-emergency-service",
+    "categoryId": "emergency_service",
+    "title": "Emergency service policy",
+    "body": "Use emergency service for urgent assistance outside a more specific supported trade. জরুরি সাহায্যের কাজ নির্দিষ্ট অন্য বিভাগে না পড়লে এই বিভাগ ব্যবহার করুন. Fire, medical danger and threats to life must be escalated to official emergency services.",
+    "keywords": "emergency service urgent incident immediate danger জরুরি সেবা জরুরি সাহায্য"
+  }
+]

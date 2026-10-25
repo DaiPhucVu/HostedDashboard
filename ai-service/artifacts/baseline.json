@@ -1,0 +1,15 @@
+{
+  "version": "baseline-v2-priority-only",
+  "metrics": {
+    "datasetSize": 26,
+    "categoryMacroF1": 1.0,
+    "statusAccuracy": 1.0,
+    "missingFieldF1": 1.0,
+    "urgentDetectionRecall": 1.0,
+    "retrievalRecallAt5": 1.0,
+    "providerFitRecallAt5": 1.0,
+    "hardFilterViolations": 0,
+    "triageLatencyP95Ms": 0.1446
+  },
+  "failures": []
+}

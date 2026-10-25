@@ -1,11 +1,9 @@
-//TODO: align the datafield like job ststus, job category, job description, job location, job date, job time, job salary, created by, finished by with @Jenny
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Table,
   Form,
   Button,
   InputGroup,
-  Badge,
   Modal,
   Alert,
   Row,
@@ -14,10 +12,138 @@ import {
 import PaginationControls from "../components/PaginationControls";
 import StickyHeader from "../components/StickyHeader";
 import { database } from "../firebase";
-import { ref, onValue, update, remove } from "firebase/database";
+import {
+  equalTo,
+  get,
+  onValue,
+  orderByValue,
+  query,
+  ref,
+  runTransaction,
+  set,
+  update,
+} from "firebase/database";
 import ConfirmModal from "../components/ConfirmModal";
-import ExportReportButton from "../components/ExportReportButton";
 import JOB_CATEGORIES from "../constants/jobCategories";
+import handymanMocks from "../data/handymanData";
+import userMocks from "../data/userData";
+import jobMocks from "../data/jobData";
+import AiAssignmentReview from "../components/AiAssignmentReview";
+import AssignedProviderSummary from "../components/AssignedProviderSummary";
+import ProviderProfileModal from "../components/ProviderProfileModal";
+import { requestAiReview } from "../services/aiReviewClient";
+import { buildAssignmentAudit } from "../domain/assignmentAudit";
+import {
+  canonicalJobCategory,
+  getManualAssignmentOptions,
+  SUPPORTED_AI_CATEGORIES,
+} from "../domain/aiContracts";
+import { PROVIDER_WORKLOAD_LIMIT } from "../domain/workloadPolicy";
+import {
+  JOB_FIELD_LABELS,
+  formatBudget,
+  formatDate,
+  formatJobField,
+  formatTime,
+} from "../utils/jobPresentation";
+import { newestJobsFirst } from "../utils/jobSorting";
+import {
+  JOB_STATUS_OPTIONS,
+  canArchiveJob,
+  isAssignmentOpen,
+  jobStatusLabel,
+  normalizeJobStatus,
+} from "../utils/jobStatus";
+import { validateJobRanges } from "../utils/jobValidation";
+
+const USE_LOCAL_FIXTURES = process.env.REACT_APP_USE_LOCAL_FIXTURES === "true";
+const AI_REVIEW_CATEGORIES = JOB_CATEGORIES;
+const LOCAL_JOB_STATE_KEY = "handyman-local-job-state-v1";
+const LOCAL_ASSIGNMENT_MODE_KEY = "handyman-assignment-mode-v1";
+const SOFT_TONES = Object.freeze({
+  blue: { backgroundColor: "#eef7fb", borderColor: "#cfe7f1", color: "#276f87" },
+  mint: { backgroundColor: "#e9f8f2", borderColor: "#c7eadc", color: "#23765f" },
+  amber: { backgroundColor: "#fff7e8", borderColor: "#f1deaa", color: "#8a6416" },
+  red: { backgroundColor: "#fff0ec", borderColor: "#f0cec5", color: "#a14838" },
+  grey: { backgroundColor: "#f4f6f5", borderColor: "#dfe5e2", color: "#66716d" },
+});
+const ACTION_TONES = Object.freeze({
+  blue: { backgroundColor: "#dceff6", borderColor: "#9ecbdc", color: "#1f6178" },
+  mint: { backgroundColor: "#d5f1e7", borderColor: "#97d2bd", color: "#1b684f" },
+  amber: { backgroundColor: "#fcebc5", borderColor: "#e3bf67", color: "#76510d" },
+  red: { backgroundColor: "#f8ddd6", borderColor: "#dda493", color: "#893729" },
+});
+
+const isAiCategorySupported = (job) => {
+  const rawCategory = String(job?.jobCat || job?.category || "").trim().toLowerCase();
+  if (!rawCategory) return true;
+  if (SUPPORTED_AI_CATEGORIES.includes(canonicalJobCategory(job))) return true;
+  return ["electric & plumbing", "electric and plumbing", "electric & plumbing services"]
+    .includes(rawCategory);
+};
+
+const canCancelAssignment = (job) => {
+  const providerId = job?.assignedTo || job?.assignment?.providerId || job?.assignment?.assignedTo || "";
+  const status = normalizeJobStatus(job?.jobStatus, "Open");
+  return Boolean(providerId) && ["Open", "Offered"].includes(status);
+};
+
+const MANUAL_WARNING_LABELS = Object.freeze({
+  MISSING_REQUIRED_SKILL: "Required skill not confirmed",
+  JOB_LOCATION_MISSING: "Job location missing",
+  OUTSIDE_SERVICE_RADIUS: "Outside recorded service radius",
+});
+
+const jobStatusTone = (status) => {
+  const normalized = normalizeJobStatus(status, "Open");
+  if (normalized === "Done") return "mint";
+  if (["Cancelled", "Inactive"].includes(normalized)) return "red";
+  if (["Offered", "Accepted", "In-progress"].includes(normalized)) return "blue";
+  return "amber";
+};
+
+function SoftTag({ tone = "grey", children }) {
+  const colours = SOFT_TONES[tone];
+  return (
+    <span
+      className="d-inline-flex align-items-center fw-semibold"
+      style={{
+        ...colours,
+        border: `1px solid ${colours.borderColor}`,
+        borderRadius: "12px",
+        fontSize: "0.78rem",
+        lineHeight: 1,
+        padding: "7px 10px",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function SoftActionButton({ tone = "grey", children, ...props }) {
+  const colours = ACTION_TONES[tone] || SOFT_TONES.grey;
+  return (
+    <Button
+      {...props}
+      size="sm"
+      variant="light"
+      className="fw-semibold"
+      style={{
+        ...colours,
+        border: `1px solid ${colours.borderColor}`,
+        borderRadius: "12px",
+        boxShadow: "0 2px 6px rgba(35, 65, 57, 0.06)",
+        height: "34px",
+        padding: "0 12px",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {children}
+    </Button>
+  );
+}
 
 function JobManagement() {
   const [jobData, setJobData] = useState([]);
@@ -33,13 +159,63 @@ function JobManagement() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
+  const [deleteSaving, setDeleteSaving] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assignCandidates, setAssignCandidates] = useState([]);
+  const [reviewData, setReviewData] = useState([]);
+  const [assignSelected, setAssignSelected] = useState(null);
+  const [assigningJob, setAssigningJob] = useState(null);
+  const [assignSaving, setAssignSaving] = useState(false);
+  const [assignError, setAssignError] = useState("");
+  const [showCancelAssignConfirm, setShowCancelAssignConfirm] = useState(false);
+  const [jobToUnassign, setJobToUnassign] = useState(null);
+  const [cancelAssignSaving, setCancelAssignSaving] = useState(false);
+  const [cancelAssignError, setCancelAssignError] = useState("");
+  const [aiReview, setAiReview] = useState(null);
+  const [aiReviewLoading, setAiReviewLoading] = useState(false);
+  const [aiReviewError, setAiReviewError] = useState("");
+  const aiReviewRequestId = useRef(0);
+  const [manualAssignMode, setManualAssignMode] = useState(false);
+  const [profileProvider, setProfileProvider] = useState(null);
+  const [assignmentMode, setAssignmentMode] = useState({ mode: "MANUAL", enabledAt: null });
+  const [assignmentModeSaving, setAssignmentModeSaving] = useState(false);
+  const [assignmentModeError, setAssignmentModeError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [formErrors, setFormErrors] = useState({});
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("currentUser"));
+    } catch {
+      return null;
+    }
+  })();
   const [filterCategory, setFilterCategory] = useState("All");
+  // maps for id -> display name to show friendly names in tables
+  const [handymanMap, setHandymanMap] = useState({});
+  const [userMap, setUserMap] = useState({});
+
+  const updateJobData = (updater) => {
+    setJobData((currentJobs) => {
+      const nextJobs = typeof updater === "function" ? updater(currentJobs) : updater;
+      if (USE_LOCAL_FIXTURES) {
+        localStorage.setItem(LOCAL_JOB_STATE_KEY, JSON.stringify(nextJobs));
+      }
+      return nextJobs;
+    });
+  };
 
   useEffect(() => {
-    const jobRef = ref(database, "DummyJob");
+    if (USE_LOCAL_FIXTURES) {
+      try {
+        const savedJobs = JSON.parse(localStorage.getItem(LOCAL_JOB_STATE_KEY));
+        setJobData(newestJobsFirst(Array.isArray(savedJobs) ? savedJobs : jobMocks));
+      } catch {
+        setJobData(newestJobsFirst(jobMocks));
+      }
+      return undefined;
+    }
+    const jobRef = ref(database, "Job");
     const unsubscribe = onValue(jobRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -47,7 +223,7 @@ function JobManagement() {
           jobId,
           ...job,
         }));
-        setJobData(jobsArray);
+        setJobData(newestJobsFirst(jobsArray));
       } else {
         setJobData([]);
       }
@@ -55,13 +231,153 @@ function JobManagement() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (USE_LOCAL_FIXTURES) {
+      try {
+        const savedMode = JSON.parse(localStorage.getItem(LOCAL_ASSIGNMENT_MODE_KEY));
+        if (savedMode?.mode) setAssignmentMode(savedMode);
+      } catch {
+        setAssignmentMode({ mode: "MANUAL", enabledAt: null });
+      }
+      return undefined;
+    }
+    return onValue(ref(database, "Settings/jobAssignment"), (snapshot) => {
+      const value = snapshot.val();
+      setAssignmentMode(value?.mode
+        ? value
+        : { mode: "MANUAL", enabledAt: null });
+    });
+  }, []);
+
+  // Load the same Firebase provider and customer records used by the mobile app.
+  useEffect(() => {
+    if (USE_LOCAL_FIXTURES) {
+      setAssignCandidates(handymanMocks);
+      setHandymanMap(Object.fromEntries(handymanMocks.map((handyman) => [
+        handyman.handymanId,
+        `${handyman.firstName || ""} ${handyman.lastName || ""}`.trim(),
+      ])));
+      setUserMap(Object.fromEntries(userMocks.map((user) => [
+        user.userId,
+        `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+      ])));
+      return;
+    }
+    const unsubscribeHandymen = onValue(ref(database, "Handyman"), (snapshot) => {
+      const providers = Object.entries(snapshot.val() || {}).map(([id, provider]) => ({
+        ...(provider || {}),
+        handymanId: provider?.handymanId || id,
+      }));
+      setAssignCandidates(providers);
+      setHandymanMap(Object.fromEntries(providers.map((provider) => [
+        provider.handymanId,
+        `${provider.firstName || provider.first_name || provider.name || ""} ${provider.lastName || provider.last_name || ""}`.trim()
+          || provider.displayName || provider.email || provider.handymanId,
+      ])));
+    });
+    const unsubscribeUsers = onValue(ref(database, "User"), (snapshot) => {
+      setUserMap(Object.fromEntries(Object.entries(snapshot.val() || {}).map(([id, user]) => [
+        id,
+        `${user.firstName || user.first_name || user.name || ""} ${user.lastName || user.last_name || ""}`.trim()
+          || user.displayName || user.email || id,
+      ])));
+    });
+    const unsubscribeReviews = onValue(ref(database, "Reviews"), (snapshot) => {
+      setReviewData(Object.entries(snapshot.val() || {}).map(([id, review]) => ({
+        ...(review || {}),
+        reviewId: review?.reviewId || id,
+      })));
+    });
+    return () => {
+      unsubscribeHandymen();
+      unsubscribeUsers();
+      unsubscribeReviews();
+    };
+  }, []);
+
+  const getHandymanName = (id) => {
+    if (!id) return null;
+    return handymanMap[id] || `${String(id).slice(0, 8)}…`;
+  };
+
+  const getUserName = (id) => {
+    if (!id) return null;
+    // if createdBy is already a friendly string, prefer it
+    return userMap[id] || null;
+  };
+
+  const indexRemovalUpdates = useCallback(async (path, jobId) => {
+    const snapshot = await get(query(ref(database, path), orderByValue(), equalTo(jobId)));
+    const removals = {};
+    snapshot.forEach((child) => {
+      removals[`${path}/${child.key}`] = null;
+    });
+    return removals;
+  }, []);
+
+  const syncAssignmentIndexes = useCallback(async (job, providerId) => {
+    const customerId = job.customerId;
+    const updates = {
+      [`Handyman/${providerId}/allJobs/${job.jobId}`]: job.jobId,
+    };
+    Object.assign(updates, await indexRemovalUpdates(`Handyman/${providerId}/cancelledJobs`, job.jobId));
+    if (customerId) {
+      Object.assign(updates, await indexRemovalUpdates(`User/${customerId}/notAssignedJobs`, job.jobId));
+      updates[`User/${customerId}/assignedJobs/${job.jobId}`] = job.jobId;
+      updates[`User/${customerId}/allJobs/${job.jobId}`] = job.jobId;
+    }
+    await update(ref(database), updates);
+  }, [indexRemovalUpdates]);
+
+  const syncCancellationIndexes = useCallback(async (job, providerId) => {
+    const updates = {};
+    for (const listName of ["allJobs", "acceptedJobs", "inProgressJobs", "completedJobs"]) {
+      Object.assign(
+        updates,
+        await indexRemovalUpdates(`Handyman/${providerId}/${listName}`, job.jobId)
+      );
+    }
+    if (job.customerId) {
+      Object.assign(updates, await indexRemovalUpdates(`User/${job.customerId}/assignedJobs`, job.jobId));
+      updates[`User/${job.customerId}/notAssignedJobs/${job.jobId}`] = job.jobId;
+      updates[`User/${job.customerId}/allJobs/${job.jobId}`] = job.jobId;
+    }
+    if (Object.keys(updates).length > 0) {
+      await update(ref(database), updates);
+    }
+  }, [indexRemovalUpdates]);
+
+  const handleAssignmentModeChange = async (automatic) => {
+    const updatedAt = new Date().toISOString();
+    const nextMode = {
+      mode: automatic ? "AUTO" : "MANUAL",
+      enabledAt: automatic ? updatedAt : null,
+      updatedAt,
+      updatedBy: currentUser?.email || currentUser?.id || "admin",
+    };
+    setAssignmentModeSaving(true);
+    setAssignmentModeError("");
+    try {
+      if (USE_LOCAL_FIXTURES) {
+        localStorage.setItem(LOCAL_ASSIGNMENT_MODE_KEY, JSON.stringify(nextMode));
+        setAssignmentMode(nextMode);
+      } else {
+        await set(ref(database, "Settings/jobAssignment"), nextMode);
+      }
+    } catch (error) {
+      setAssignmentModeError(error?.message || "Assignment mode could not be changed.");
+    } finally {
+      setAssignmentModeSaving(false);
+    }
+  };
+
   const validateForm = () => {
     const errors = {};
     if (!editedJob.jobCat) errors.jobCat = "Job category is required";
     if (!editedJob.jobDesc) errors.jobDesc = "Description is required";
-    if (!editedJob.jobStatus) errors.jobStatus = "Status is required";
     if (!editedJob.jobDateFrom) errors.jobDateFrom = "Start date is required";
     if (!editedJob.jobDateTo) errors.jobDateTo = "End date is required";
+    Object.assign(errors, validateJobRanges(editedJob));
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -69,7 +385,7 @@ function JobManagement() {
   const filteredJobs = jobData.filter((job) => {
     const matchesStatus =
       filterStatus === "All" ||
-      job.jobStatus?.toLowerCase() === filterStatus.toLowerCase();
+      normalizeJobStatus(job.jobStatus, "Open") === filterStatus;
     const matchesCategory =
       filterCategory === "All" ||
       job.jobCat?.toLowerCase() === filterCategory.toLowerCase();
@@ -81,7 +397,12 @@ function JobManagement() {
     return matchesStatus && matchesCategory && matchesSearch;
   });
 
-  const totalPages = Math.ceil(filteredJobs.length / entriesPerPage);
+  const filterCategories = [...new Map(
+    [...JOB_CATEGORIES, ...jobData.map((job) => String(job.jobCat || "").trim())]
+      .filter(Boolean)
+      .map((category) => [category.toLowerCase(), category])
+  ).values()];
+
   const startIndex = (currentPage - 1) * entriesPerPage;
   const currentJobs = filteredJobs.slice(
     startIndex,
@@ -95,8 +416,24 @@ function JobManagement() {
     const jobRef = ref(database, "Job/" + editedJob.jobId);
     const updatedJob = {
       ...editedJob,
+      jobStatus: normalizeJobStatus(editedJob.jobStatus, "Open"),
       lastUpdated: new Date().toISOString(),
     };
+
+    if (USE_LOCAL_FIXTURES) {
+      updateJobData((jobs) => jobs.map((job) => job.jobId === updatedJob.jobId ? updatedJob : job));
+      setSelectedJob(updatedJob);
+      setEditedJob(updatedJob);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setShowConfirmModal(false);
+        setShowModal(false);
+        setIsEditMode(false);
+        setIsSaving(false);
+      }, 800);
+      return;
+    }
 
     update(jobRef, updatedJob)
       .then(() => {
@@ -122,29 +459,352 @@ function JobManagement() {
     setShowModal(true);
   };
 
+  const loadAiReview = async (job) => {
+    const requestId = ++aiReviewRequestId.current;
+    setAiReview(null);
+    setAiReviewError("");
+    setAiReviewLoading(true);
+    setManualAssignMode(false);
+    setAssignSelected(null);
+    try {
+      const review = await requestAiReview(job, assignCandidates, jobData, reviewData);
+      if (requestId === aiReviewRequestId.current) setAiReview(review);
+    } catch (error) {
+      console.error("Error loading AI assignment review:", error);
+      if (requestId === aiReviewRequestId.current) {
+        setAiReviewError(error?.message || "AI review is unavailable. Retry the request or review the job details.");
+      }
+    } finally {
+      if (requestId === aiReviewRequestId.current) setAiReviewLoading(false);
+    }
+  };
+
   const handleDeleteClick = (job) => {
+    if (!canArchiveJob(job)) return;
     setJobToDelete(job);
+    setDeleteError("");
     setShowDeleteConfirm(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleAssignClick = (job) => {
+    setAssigningJob(job);
+    setAssignSelected(null);
+    setAssignError("");
+    setManualAssignMode(false);
+    setShowAssignModal(true);
+    loadAiReview(job);
+  };
+
+  const handleConfirmAssign = async () => {
+    if (!assigningJob || !assignSelected) return;
+    const jobId = assigningJob.jobId;
+    const providerId = assignSelected.handymanId || assignSelected.id;
+    const manualOption = manualAssignmentOptions.find((option) => option.providerId === providerId);
+    const aiCandidate = aiReview?.ranking?.candidates?.some((candidate) => candidate.providerId === providerId);
+    if (manualAssignMode ? !manualOption : aiReview?.triage?.triageStatus !== "READY_FOR_ASSIGNMENT" || !aiCandidate) {
+      setAssignError("This provider is no longer eligible. Refresh the review and try again.");
+      return;
+    }
+    setAssignSaving(true);
+    setAssignError("");
+    try {
+      const assignedAt = new Date().toISOString();
+      const assignmentMethod = manualAssignMode ? "MANUAL_OVERRIDE" : "AI_RECOMMENDED";
+      const assignmentAudit = {
+        ...buildAssignmentAudit(
+          aiReview,
+          providerId,
+          assignmentMethod,
+          assignedAt
+        ),
+        providerName: `${assignSelected.firstName || assignSelected.first_name || ""} ${assignSelected.lastName || assignSelected.last_name || ""}`.trim()
+          || assignSelected.displayName
+          || assignSelected.name
+          || assignSelected.email
+          || providerId,
+      };
+      const assignmentUpdate = {
+        assignedTo: providerId,
+        assignedBy: currentUser?.email || currentUser?.id || "admin",
+        assignedAt,
+        assignmentMethod,
+        assignmentAudit,
+        assignmentOverrideReasons: manualAssignMode && manualOption.warnings.length > 0
+          ? manualOption.warnings
+          : null,
+        autoAssignmentDisabled: false,
+        autoAssignmentStatus: manualAssignMode ? "MANUAL_ASSIGNED" : "MANUAL_CONFIRMED",
+        autoAssignmentError: null,
+        jobStatus: "Offered",
+        jobStatusHandyman: "Pending",
+        lastUpdated: assignedAt,
+      };
+      if (USE_LOCAL_FIXTURES) {
+        updateJobData((jobs) => jobs.map((job) => job.jobId === jobId ? {
+          ...job,
+          ...assignmentUpdate,
+          assignmentVersion: Number(job.assignmentVersion || 0) + 1,
+        } : job));
+      } else {
+        const jobRef = ref(database, `Job/${jobId}`);
+        const result = await runTransaction(jobRef, (currentJob) => {
+          const legacyProviderId = currentJob?.assignment?.providerId ||
+            currentJob?.assignment?.assignedTo || "";
+          if (!currentJob || currentJob.assignedTo || legacyProviderId || !isAssignmentOpen(currentJob)) {
+            return undefined;
+          }
+          return {
+            ...currentJob,
+            ...assignmentUpdate,
+            assignmentVersion: Number(currentJob.assignmentVersion || 0) + 1,
+          };
+        }, { applyLocally: false });
+        if (!result.committed) {
+          throw new Error("This job is no longer open for assignment. Refresh and try again.");
+        }
+        try {
+          await syncAssignmentIndexes(assigningJob, providerId);
+        } catch (syncError) {
+          await runTransaction(jobRef, (currentJob) => {
+            if (
+              currentJob?.assignedTo !== providerId ||
+              normalizeJobStatus(currentJob.jobStatus) !== "Offered"
+            ) {
+              return undefined;
+            }
+            return {
+              ...currentJob,
+              assignedTo: "",
+              assignedBy: null,
+              assignedAt: null,
+              assignmentMethod: null,
+              assignmentAudit: null,
+              assignmentOverrideReasons: null,
+              autoAssignmentStatus: "MANUAL_REVIEW",
+              jobStatus: "Open",
+              jobStatusHandyman: null,
+              lastUpdated: new Date().toISOString(),
+            };
+          }, { applyLocally: false });
+          throw new Error("Assignment could not be synced to the mobile app and was rolled back.");
+        }
+      }
+      setShowAssignModal(false);
+      setAssigningJob(null);
+      setAssignSelected(null);
+      setAiReview(null);
+      setManualAssignMode(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1500);
+    } catch (error) {
+      console.error("Error assigning job:", error);
+      setAssignError(error.message || "Assignment failed. Refresh the job and try again.");
+    } finally {
+      setAssignSaving(false);
+    }
+  };
+
+  const handleReviewJobDetails = () => {
+    if (!assigningJob) return;
+    setSelectedJob(assigningJob);
+    setEditedJob({ ...assigningJob });
+    setIsEditMode(true);
+    setShowAssignModal(false);
+    setShowModal(true);
+  };
+
+  const handleCancelAssignClick = (job) => {
+    setJobToUnassign(job);
+    setCancelAssignError("");
+    setShowCancelAssignConfirm(true);
+  };
+
+  const handleConfirmCancelAssignment = async () => {
+    if (!jobToUnassign) return;
+    setCancelAssignSaving(true);
+    setCancelAssignError("");
+    try {
+      const expectedProviderId = activeProviderId(jobToUnassign);
+      const cancelledAt = new Date().toISOString();
+      const cancellationUpdate = {
+        assignedTo: "",
+        assignedBy: null,
+        assignedAt: null,
+        assignment: null,
+        assignmentMethod: null,
+        assignmentAudit: null,
+        assignmentOverrideReasons: null,
+        autoAssignmentDisabled: true,
+        autoAssignmentStatus: "MANUAL_REVIEW",
+        autoAssignmentError: null,
+        jobStatus: "Open",
+        jobStatusHandyman: null,
+        lastUpdated: cancelledAt,
+      };
+      if (USE_LOCAL_FIXTURES) {
+        updateJobData((jobs) => jobs.map((job) => job.jobId === jobToUnassign.jobId ? {
+          ...job,
+          ...cancellationUpdate,
+          lastAssignmentAudit: job.assignmentAudit ? {
+            ...job.assignmentAudit,
+            status: "CANCELLED",
+            cancelledAt,
+          } : job.lastAssignmentAudit || null,
+          assignmentVersion: Number(job.assignmentVersion || 0) + 1,
+        } : job));
+      } else {
+        const jobRef = ref(database, `Job/${jobToUnassign.jobId}`);
+        const result = await runTransaction(jobRef, (currentJob) => {
+          const currentProviderId = currentJob?.assignedTo ||
+            currentJob?.assignment?.providerId ||
+            currentJob?.assignment?.assignedTo || "";
+          if (
+            !currentJob ||
+            !expectedProviderId ||
+            currentProviderId !== expectedProviderId ||
+            !["Open", "Offered"].includes(
+              normalizeJobStatus(currentJob.jobStatus, "Open")
+            )
+          ) {
+            return undefined;
+          }
+          return {
+            ...currentJob,
+            ...cancellationUpdate,
+            lastAssignmentAudit: currentJob.assignmentAudit ? {
+              ...currentJob.assignmentAudit,
+              status: "CANCELLED",
+              cancelledAt,
+            } : currentJob.lastAssignmentAudit || null,
+            assignmentVersion: Number(currentJob.assignmentVersion || 0) + 1,
+          };
+        }, { applyLocally: false });
+        if (!result.committed) {
+          throw new Error("This assignment changed before cancellation. Refresh and try again.");
+        }
+        try {
+          await syncCancellationIndexes(jobToUnassign, expectedProviderId);
+        } catch (syncError) {
+          await runTransaction(jobRef, (currentJob) => {
+            if (
+              currentJob?.assignedTo ||
+              normalizeJobStatus(currentJob.jobStatus, "Open") !== "Open"
+            ) {
+              return undefined;
+            }
+            return {
+              ...currentJob,
+              assignedTo: expectedProviderId,
+              assignedBy: jobToUnassign.assignedBy || null,
+              assignedAt: jobToUnassign.assignedAt || null,
+              assignment: jobToUnassign.assignment || null,
+              assignmentMethod: jobToUnassign.assignmentMethod || null,
+              assignmentAudit: jobToUnassign.assignmentAudit || null,
+              lastAssignmentAudit: jobToUnassign.lastAssignmentAudit || null,
+              assignmentOverrideReasons: jobToUnassign.assignmentOverrideReasons || null,
+              autoAssignmentDisabled: jobToUnassign.autoAssignmentDisabled || false,
+              autoAssignmentStatus: jobToUnassign.autoAssignmentStatus || null,
+              jobStatus: jobToUnassign.jobStatus || "Offered",
+              jobStatusHandyman: jobToUnassign.jobStatusHandyman || "Pending",
+              lastUpdated: new Date().toISOString(),
+            };
+          }, { applyLocally: false });
+          throw new Error("Cancellation could not be synced to the mobile app and was rolled back.");
+        }
+      }
+      setShowCancelAssignConfirm(false);
+      setJobToUnassign(null);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1500);
+    } catch (error) {
+      setCancelAssignError(error.message || "Cancellation failed. Refresh the job and try again.");
+    } finally {
+      setCancelAssignSaving(false);
+    }
+  };
+
+  const aiHasNoEligibleProvider = Boolean(
+    aiReview && aiReview.ranking.candidates.length === 0
+  );
+  const aiBlocksAssignment = Boolean(
+    aiReview && (
+      aiReview.triage.triageStatus !== "READY_FOR_ASSIGNMENT" ||
+      aiHasNoEligibleProvider
+    )
+  );
+  const manualAssignmentOptions = assigningJob && aiReview
+    ? getManualAssignmentOptions(assigningJob, assignCandidates, jobData, aiReview.triage)
+    : [];
+  const selectedManualOption = manualAssignmentOptions.find((option) =>
+    option.providerId === (assignSelected?.handymanId || assignSelected?.id)
+  );
+  const canConfirmAssignment = manualAssignMode
+    ? Boolean(selectedManualOption)
+    : Boolean(assignSelected && !aiBlocksAssignment);
+
+  const activeProviderId = (job) => job.assignedTo ||
+    job.assignment?.providerId ||
+    job.assignment?.assignedTo || "";
+
+  const viewedProviderId = activeProviderId(editedJob || {});
+  const viewedAssignedProvider = assignCandidates.find((provider) =>
+    (provider.handymanId || provider.id) === viewedProviderId
+  ) || null;
+
+  const handleConfirmDelete = async () => {
     if (!jobToDelete) return;
     const jobId = jobToDelete.jobId;
-    // Remove from both paths to handle apps using either path
-    const dummyRef = ref(database, `DummyJob/${jobId}`);
-    const jobRef = ref(database, `Job/${jobId}`);
-    Promise.all([remove(dummyRef).catch((e) => e), remove(jobRef).catch((e) => e)])
-      .then(() => {
-        setShowDeleteConfirm(false);
-        setJobToDelete(null);
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 1500);
-      })
-      .catch((err) => {
-        console.error("Error deleting job:", err);
-        setShowDeleteConfirm(false);
-        setJobToDelete(null);
-      });
+    const archivedAt = new Date().toISOString();
+    setDeleteSaving(true);
+    setDeleteError("");
+    try {
+      if (USE_LOCAL_FIXTURES) {
+        updateJobData((jobs) => jobs.map((job) => job.jobId === jobId ? {
+          ...job,
+          jobStatus: "Inactive",
+          autoAssignmentDisabled: true,
+          autoAssignmentStatus: "ARCHIVED",
+          lastUpdated: archivedAt,
+        } : job));
+      } else {
+        const jobRef = ref(database, `Job/${jobId}`);
+        const result = await runTransaction(jobRef, (currentJob) => {
+          if (!currentJob || !canArchiveJob(currentJob)) {
+            return undefined;
+          }
+          return {
+            ...currentJob,
+            jobStatus: "Inactive",
+            autoAssignmentDisabled: true,
+            autoAssignmentStatus: "ARCHIVED",
+            autoAssignmentClaimId: null,
+            lastUpdated: archivedAt,
+          };
+        }, { applyLocally: false });
+        if (!result.committed) {
+          throw new Error("Only unassigned open jobs can be deleted.");
+        }
+        if (jobToDelete.customerId) {
+          const updates = {};
+          Object.assign(
+            updates,
+            await indexRemovalUpdates(`User/${jobToDelete.customerId}/notAssignedJobs`, jobId),
+            await indexRemovalUpdates(`User/${jobToDelete.customerId}/allJobs`, jobId)
+          );
+          updates[`User/${jobToDelete.customerId}/cancelledJobs/${jobId}`] = jobId;
+          await update(ref(database), updates);
+        }
+      }
+      setShowDeleteConfirm(false);
+      setJobToDelete(null);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 1500);
+    } catch (error) {
+      console.error("Error deleting job:", error);
+      setDeleteError(error?.message || "The job could not be archived.");
+    } finally {
+      setDeleteSaving(false);
+    }
   };
 
   const handleReset = () => {
@@ -153,7 +813,7 @@ function JobManagement() {
   };
 
   const groupedFields = {
-    General: [
+    "Job overview": [
       "jobCat",
       "jobDesc",
       "jobStatus",
@@ -163,13 +823,13 @@ function JobManagement() {
       "assignedTo",
     ],
     Location: ["jobLocation"],
-    DateTime: ["jobDateFrom", "jobDateTo", "jobTimeFrom", "jobTimeTo"],
+    Schedule: ["jobDateFrom", "jobDateTo", "jobTimeFrom", "jobTimeTo"],
     Payment: ["jobPaymentOption", "jobSalaryFrom", "jobSalaryTo"],
-    Meta: ["jobId", "customerId", "quotedHandymen", "createdAt", "lastUpdated"],
+    Reference: ["jobId", "customerId", "createdAt", "lastUpdated"],
   };
 
   const getInputType = (key) => {
-    if (key.toLowerCase().includes("date")) return "date";
+    if (key.toLowerCase().includes("date")) return "text";
     if (key.toLowerCase().includes("time")) return "time";
     if (key.toLowerCase().includes("salary")) return "number";
     return "text";
@@ -183,7 +843,7 @@ function JobManagement() {
           {fields.map((key) =>
             editedJob[key] !== undefined ? (
               <Col md={6} className="mb-2" key={key}>
-                <Form.Label className="fw-semibold">{key}</Form.Label>
+                <Form.Label className="fw-semibold">{JOB_FIELD_LABELS[key] || key}</Form.Label>
                 {isEditMode &&
                 ![
                   "createdBy",
@@ -192,25 +852,23 @@ function JobManagement() {
                   "jobId",
                   "customerId",
                   "quotedHandymen",
+                  "assignedTo",
+                  "jobStatus",
+                  "jobStatusHandyman",
+                  "jobStatusCustomer",
                 ].includes(key) ? (
-                  key === "jobStatus" ||
-                  key === "jobStatusCustomer" ||
-                  key === "jobStatusHandyman" ? (
+                  key === "jobCat" ? (
                     <Form.Select
                       value={editedJob[key] || ""}
-                      onChange={(e) =>
-                        setEditedJob({ ...editedJob, [key]: e.target.value })
-                      }
+                      onChange={(e) => setEditedJob({ ...editedJob, [key]: e.target.value })}
                       isInvalid={!!formErrors[key]}
                     >
-                      <option value="" disabled hidden>
-                        Select Status
-                      </option>
-                      <option value="Open">Open</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Done">Done</option>
-                      <option value="Cancelled">Cancelled</option>
-                      <option value="Done">Done</option>
+                      {!AI_REVIEW_CATEGORIES.includes(editedJob[key]) && editedJob[key] && (
+                        <option value={editedJob[key]}>{editedJob[key]} (not in AI taxonomy)</option>
+                      )}
+                      {AI_REVIEW_CATEGORIES.map((category) => (
+                        <option key={category} value={category}>{category}</option>
+                      ))}
                     </Form.Select>
                   ) : (
                     <Form.Control
@@ -225,10 +883,13 @@ function JobManagement() {
                 ) : (
                   <Form.Control
                     value={
-                      typeof editedJob[key] === "object"
-                        ? JSON.stringify(editedJob[key])
-                        : editedJob[key]
+                      key === "createdBy"
+                        ? getUserName(editedJob.customerId) || editedJob.createdBy || "—"
+                        : key === "assignedTo"
+                        ? getHandymanName(editedJob.assignedTo) || "—"
+                        : formatJobField(key, editedJob[key])
                     }
+                    title={String(editedJob[key] || "")}
                     disabled
                   />
                 )}
@@ -252,7 +913,45 @@ function JobManagement() {
         className="mb-4"
       />
 
-      {/* Filter, Search Bar , Export Report Button*/}
+      {showSuccess && (
+        <Alert variant="success" dismissible onClose={() => setShowSuccess(false)}>
+          Changes saved successfully.
+        </Alert>
+      )}
+
+      <div
+        className="d-flex justify-content-between align-items-center gap-3 flex-wrap border rounded-3 p-3 mt-4"
+        style={{ backgroundColor: "#f5fcf9", borderColor: "#b8ded2" }}
+      >
+        <div>
+          <div className="fw-semibold">Automatic AI assignment</div>
+          <div className="small text-muted">
+            {assignmentMode.mode === "AUTO"
+              ? "New jobs are assigned only when every automatic-assignment check passes."
+              : "AI prepares the ranking; an admin confirms the provider."}
+          </div>
+        </div>
+        <div className="d-flex align-items-center gap-3">
+          <SoftTag tone={assignmentMode.mode === "AUTO" ? "mint" : "blue"}>
+            {assignmentMode.mode === "AUTO" ? "Auto" : "Manual"}
+          </SoftTag>
+          <Form.Check
+            type="switch"
+            id="automatic-assignment-switch"
+            aria-label="Automatic AI assignment"
+            checked={assignmentMode.mode === "AUTO"}
+            disabled={assignmentModeSaving}
+            onChange={(event) => handleAssignmentModeChange(event.target.checked)}
+          />
+        </div>
+      </div>
+      {assignmentModeError && (
+        <Alert variant="danger" className="py-2 mt-3 mb-0">
+          {assignmentModeError}
+        </Alert>
+      )}
+
+      {/* Filter and search controls */}
       <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3 mt-4">
         <div className="d-flex align-items-center gap-4 flex-grow-1">
           <InputGroup style={{ width: "50%" }}>
@@ -293,10 +992,9 @@ function JobManagement() {
               style={{ width: "150px" }}
             >
               <option value="All">All</option>
-              <option value="Open">Open</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Done">Done</option>
-              <option value="Cancelled">Cancelled</option>
+              {JOB_STATUS_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
             </Form.Select>
           </div>
           {/* Category Filter */}
@@ -311,31 +1009,13 @@ function JobManagement() {
               style={{ width: "200px" }}
             >
               <option value="All">All</option>
-              {JOB_CATEGORIES.map((cat, idx) => (
-                <option key={idx} value={cat}>
+              {filterCategories.map((cat) => (
+                <option key={cat.toLowerCase()} value={cat}>
                   {cat}
                 </option>
               ))}
             </Form.Select>
           </div>
-        </div>
-        {/* Export Report button */}
-        <div className="d-flex align-items-center h-100 mb-0 mt-0">
-          <ExportReportButton
-            data={currentJobs}
-            columns={[
-              { header: "Job ID", accessor: "jobId" },
-              { header: "Job Category", accessor: "jobCat" },
-              { header: "Description", accessor: "jobDesc" },
-              { header: "Created By", accessor: "createdBy" },
-              { header: "Location", accessor: "jobLocation" },
-              { header: "Date", accessor: "jobDateFrom" },
-              { header: "Time", accessor: "jobTimeFrom" },
-              { header: "Salary", accessor: "jobSalaryFrom" },
-              { header: "Status", accessor: "jobStatus" },
-            ]}
-            fileName="Job_Report"
-          />
         </div>
       </div>
 
@@ -343,6 +1023,8 @@ function JobManagement() {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Assigned</th>
+            <th>Assigned To</th>
             <th>Job Category</th>
             <th>Description</th>
             <th>Created By</th>
@@ -361,38 +1043,34 @@ function JobManagement() {
             currentJobs.map((job) => (
               <tr key={job.jobId}>
                 <td>{job.jobId.slice(0, 8)}...</td>
+                <td>
+                  <SoftTag tone={activeProviderId(job) ? "mint" : "grey"}>
+                    {activeProviderId(job) ? 'Yes' : 'No'}
+                  </SoftTag>
+                </td>
+                <td>{getHandymanName(activeProviderId(job)) || '—'}</td>
                 <td>{job.jobCat}</td>
                 <td>{job.jobDesc}</td>
                 <td>
                   <div className="d-flex align-items-center gap-2">
                     <i className="bi bi-person"></i>
-                    <span>{job.createdBy || "N/A"}</span>
+                    <span>{getUserName(job.customerId) || job.createdBy || "N/A"}</span>
                   </div>
                 </td>
                 <td>{job.jobLocation}</td>
                 <td>
-                  {job.jobDateFrom} - {job.jobDateTo}
+                  {formatDate(job.jobDateFrom)} – {formatDate(job.jobDateTo)}
                 </td>
                 <td>
-                  {job.jobTimeFrom} - {job.jobTimeTo}
+                  {formatTime(job.jobTimeFrom)} – {formatTime(job.jobTimeTo)}
                 </td>
                 <td>
-                  {job.jobSalaryFrom} - {job.jobSalaryTo}
+                  {formatBudget(job.jobSalaryFrom)} – {formatBudget(job.jobSalaryTo)}
                 </td>
                 <td>
-                  <Badge
-                    bg={
-                      job.jobStatus === "Done"
-                        ? "success"
-                        : job.jobStatus === "Cancelled"
-                        ? "danger"
-                        : job.jobStatus === "In Progress"
-                        ? "primary"
-                        : "warning"
-                    }
-                  >
-                    {job.jobStatus || "Open"}
-                  </Badge>
+                  <SoftTag tone={jobStatusTone(job.jobStatus)}>
+                    {jobStatusLabel(job.jobStatus)}
+                  </SoftTag>
                 </td>
                 <td>
                   {Array.isArray(job.quotedHandymen)
@@ -400,32 +1078,62 @@ function JobManagement() {
                     : 0}
                 </td>
                 <td>
-                  {job.jobStatus === "Done"
+                  {normalizeJobStatus(job.jobStatus) === "Done"
                     ? job.finishedBy || "Handyman"
                     : "—"}
                 </td>
                 <td>
-                  <Button
-                    size="sm"
-                    variant="info"
-                    onClick={() => handleViewClick(job)}
-                  >
-                    View
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    className="ms-2"
-                    onClick={() => handleDeleteClick(job)}
-                  >
-                    Delete
-                  </Button>
+                  <div className="d-flex flex-wrap gap-2">
+                    <SoftActionButton tone="blue" onClick={() => handleViewClick(job)}>
+                      View
+                    </SoftActionButton>
+                    {canCancelAssignment(job) ? (
+                      <SoftActionButton tone="amber" onClick={() => handleCancelAssignClick(job)}>
+                        Cancel Assign
+                      </SoftActionButton>
+                    ) : (
+                      <SoftActionButton
+                        tone={activeProviderId(job) || !isAssignmentOpen(job) || !isAiCategorySupported(job) ? "grey" : "mint"}
+                        disabled={Boolean(activeProviderId(job)) || !isAssignmentOpen(job) || !isAiCategorySupported(job)}
+                        onClick={() => handleAssignClick(job)}
+                        title={
+                          activeProviderId(job)
+                            ? "This job already has a provider"
+                            : !isAssignmentOpen(job)
+                              ? "Only open jobs can be assigned"
+                              : !isAiCategorySupported(job)
+                                ? "This job category is not supported"
+                                : "Review AI triage and provider recommendations"
+                        }
+                      >
+                        {activeProviderId(job)
+                          ? "Assigned"
+                          : !isAssignmentOpen(job)
+                            ? "Closed"
+                            : !isAiCategorySupported(job)
+                              ? "Not supported"
+                              : "Assign"}
+                      </SoftActionButton>
+                    )}
+                    <SoftActionButton
+                      tone={canArchiveJob(job) ? "red" : "grey"}
+                      disabled={!canArchiveJob(job)}
+                      onClick={() => handleDeleteClick(job)}
+                      title={
+                        !canArchiveJob(job)
+                          ? "Only unassigned open jobs can be deleted"
+                          : "Archive this open job"
+                      }
+                    >
+                      Delete
+                    </SoftActionButton>
+                  </div>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="12" className="text-center text-muted">
+              <td colSpan="14" className="text-center text-muted">
                 No jobs found.
               </td>
             </tr>
@@ -449,12 +1157,23 @@ function JobManagement() {
         centered
       >
         <Modal.Header closeButton>
-          <Modal.Title>{isEditMode ? "Edit Job" : "Job Details"}</Modal.Title>
+          <Modal.Title>
+            {isEditMode ? "Edit job details" : `View job — ${editedJob?.jobCat || "Uncategorised"}`}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {editedJob && (
             <Form>
               {renderGroupedFields()}
+              {!isEditMode && (
+                <AssignedProviderSummary
+                  job={editedJob}
+                  provider={viewedAssignedProvider}
+                  jobs={jobData}
+                  reviews={reviewData}
+                  onViewProvider={setProfileProvider}
+                />
+              )}
               {showSuccess && (
                 <Alert variant="success">Saved successfully!</Alert>
               )}
@@ -474,7 +1193,12 @@ function JobManagement() {
             Close
           </Button>
           {!isEditMode ? (
-            <Button variant="warning" onClick={() => setIsEditMode(true)}>
+            <Button
+              variant="warning"
+              disabled={!canArchiveJob(editedJob)}
+              title={!canArchiveJob(editedJob) ? "Only unassigned open jobs can be edited" : ""}
+              onClick={() => setIsEditMode(true)}
+            >
               Edit
             </Button>
           ) : (
@@ -497,17 +1221,173 @@ function JobManagement() {
       />
       <ConfirmModal
         show={showDeleteConfirm}
-        onHide={() => setShowDeleteConfirm(false)}
+        onHide={() => {
+          if (!deleteSaving) {
+            setShowDeleteConfirm(false);
+            setDeleteError("");
+          }
+        }}
         onConfirm={handleConfirmDelete}
-        title="Confirm Delete"
+        title="Confirm Archive"
         body={
-          jobToDelete
-            ? `Are you sure you want to delete job ${jobToDelete.jobId.slice(0, 8)}...? This action cannot be undone.`
-            : "Are you sure you want to delete this job?"
+          <>
+            <div>
+              {jobToDelete
+                ? `Archive job ${jobToDelete.jobId.slice(0, 8)}...? It will no longer be available for assignment.`
+                : "Are you sure you want to archive this job?"}
+            </div>
+            {deleteError && <Alert variant="danger" className="mt-3 mb-0 py-2">{deleteError}</Alert>}
+          </>
         }
-        loading={false}
-        confirmText="Delete"
+        loading={deleteSaving}
+        confirmText="Archive"
         cancelText="Cancel"
+      />
+      <ConfirmModal
+        show={showCancelAssignConfirm}
+        onHide={() => {
+          if (!cancelAssignSaving) {
+            setShowCancelAssignConfirm(false);
+            setCancelAssignError("");
+          }
+        }}
+        onConfirm={handleConfirmCancelAssignment}
+        title="Cancel provider assignment"
+        body={(
+          <>
+            <div>{jobToUnassign ? `Cancel the offer to ${getHandymanName(activeProviderId(jobToUnassign)) || "this provider"}? The job will return to Open and can be assigned again.` : "Cancel this assignment?"}</div>
+            {cancelAssignError && <Alert variant="danger" className="py-2 mt-3 mb-0">{cancelAssignError}</Alert>}
+          </>
+        )}
+        loading={cancelAssignSaving}
+        confirmText="Cancel assignment"
+        cancelText="Keep assignment"
+      />
+
+      <Modal show={showAssignModal} onHide={() => setShowAssignModal(false)} size="lg" centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Review & Assign Job</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="mb-3">
+            <div>
+              <strong>{assigningJob?.jobCat || "Uncategorised"} job</strong>
+              {assigningJob?.jobDesc ? ` — ${assigningJob.jobDesc}` : " — No description provided"}
+            </div>
+            <div className="text-muted small mt-1">
+              {assigningJob?.jobLocation || "Location not provided"}
+              {" · "}{formatDate(assigningJob?.jobDateFrom)} – {formatDate(assigningJob?.jobDateTo)}
+              {" · "}{formatTime(assigningJob?.jobTimeFrom)} – {formatTime(assigningJob?.jobTimeTo)}
+            </div>
+          </div>
+          <div className="d-flex justify-content-between align-items-center gap-3 border rounded-3 p-3 mb-3"
+            style={{ backgroundColor: "#f7fbfa", borderColor: "#cfe5de" }}>
+            <div>
+              <div className="fw-semibold">Local AI matching</div>
+              <div className="small text-muted">Qwen triage with service rules and provider ranking.</div>
+            </div>
+            <SoftTag tone="mint">Local Qwen</SoftTag>
+          </div>
+          <AiAssignmentReview
+            review={aiReview}
+            loading={aiReviewLoading}
+            error={aiReviewError}
+            providers={assignCandidates}
+            selectedProviderId={manualAssignMode ? null : assignSelected?.handymanId}
+            jobStatus={assigningJob?.jobStatus}
+            onSelectProvider={(provider) => {
+              setManualAssignMode(false);
+              setAssignSelected(provider);
+            }}
+            onViewProvider={setProfileProvider}
+            onRetry={() => assigningJob && loadAiReview(assigningJob)}
+          />
+          {aiBlocksAssignment && (
+            <Alert variant="warning" className="py-2 d-flex justify-content-between align-items-center gap-3">
+              <span>
+                {aiReview?.triage?.triageStatus === "READY_FOR_ASSIGNMENT" && aiHasNoEligibleProvider
+                  ? "No provider currently meets every assignment rule. Alternatives are view-only; manual assignment remains available below."
+                  : "AI assignment is paused because information is incomplete. Review the job or use manual assignment below."}
+              </span>
+              <Button size="sm" variant="outline-dark" className="flex-shrink-0" onClick={handleReviewJobDetails}>
+                Review Job Details
+              </Button>
+            </Alert>
+          )}
+          {aiReview && !aiReviewLoading && (
+            <div className="border rounded-3 p-3 mb-3" style={{ backgroundColor: "#f5fcf9", borderColor: "#b8ded2" }}>
+              <div className="fw-semibold mb-1">Manual assignment</div>
+              <div className="small text-muted mb-3">
+                Choose manually instead of the AI recommendation. Only verified, available providers with fewer than {PROVIDER_WORKLOAD_LIMIT} active jobs are listed.
+              </div>
+              {manualAssignmentOptions.length === 0 ? (
+                <Alert variant="light" className="border mb-0">
+                  No provider currently passes the verification, availability, and workload checks.
+                </Alert>
+              ) : (
+                <>
+                  <Form.Select
+                    aria-label="Select provider manually"
+                    value={manualAssignMode ? assignSelected?.handymanId || assignSelected?.id || "" : ""}
+                    onChange={(event) => {
+                      const option = manualAssignmentOptions.find((item) => item.providerId === event.target.value);
+                      setManualAssignMode(Boolean(option));
+                      setAssignSelected(option?.provider || null);
+                      setAssignError("");
+                    }}
+                  >
+                    <option value="">Choose a provider</option>
+                    {manualAssignmentOptions.map((option) => (
+                      <option key={option.providerId} value={option.providerId}>
+                        {option.displayName} — {option.skills.join(", ") || "No recorded skills"} — {option.activeJobs} of {PROVIDER_WORKLOAD_LIMIT} active jobs
+                      </option>
+                    ))}
+                  </Form.Select>
+                  {selectedManualOption && (
+                    <div className="d-flex flex-wrap align-items-center gap-2 mt-3">
+                      <span className="small fw-semibold">Checks:</span>
+                      <SoftTag tone="mint">Verified</SoftTag>
+                      <SoftTag tone="mint">Available</SoftTag>
+                      <SoftTag tone="mint">Workload available ({selectedManualOption.activeJobs}/{PROVIDER_WORKLOAD_LIMIT})</SoftTag>
+                      {selectedManualOption.warnings.length === 0 ? (
+                        <SoftTag tone="mint">No override warning</SoftTag>
+                      ) : selectedManualOption.warnings.map((warning) => (
+                        <SoftTag tone="amber" key={warning}>{MANUAL_WARNING_LABELS[warning] || warning}</SoftTag>
+                      ))}
+                      <Button
+                        size="sm"
+                        variant="outline-info"
+                        className="rounded-pill ms-auto"
+                        onClick={() => setProfileProvider(selectedManualOption.provider)}
+                      >
+                        View Profile
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+          {assignError && <Alert variant="danger" className="py-2">{assignError}</Alert>}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowAssignModal(false)}>Cancel</Button>
+          <Button
+            style={ACTION_TONES.mint}
+            onClick={handleConfirmAssign}
+            disabled={assignSaving || !canConfirmAssignment}
+          >
+            {assignSaving ? "Assigning…" : manualAssignMode ? "Assign Manually" : "Assign"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <ProviderProfileModal
+        show={Boolean(profileProvider)}
+        onHide={() => setProfileProvider(null)}
+        provider={profileProvider}
+        jobs={jobData}
+        reviews={reviewData}
       />
     </div>
   );

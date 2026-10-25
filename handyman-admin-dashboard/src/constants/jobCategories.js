@@ -1,21 +1,21 @@
 // src/constants/jobCategories.js
 const JOB_CATEGORIES = [
-  "AC Repair Services",
+  "A/C Repair Services",
   "Appliance Repair",
   "Cleaning Solution",
-  "Beauty & Wellness",
+  "Beauty and Wellness",
   "Shifting",
-  "Men's Care & Salon",
-  "Health & Care",
-  "Electronics & Gadgets Repair",
-  "Electric & Plumbing",
+  "Men's Care and Salon",
+  "Health and Care",
+  "Electronics and Gadget Repair",
+  "Electric and Plumbing",
   "Pest Control",
   "Driver Service",
   "Car Care Services",
-  "Trips & Travels",
+  "Trips and Travel",
   "Car Rental",
-  "Painting & Renovation",
-  "Emergency Services"
+  "Painting and Renovation",
+  "Emergency Service"
 ];
 
 export default JOB_CATEGORIES;

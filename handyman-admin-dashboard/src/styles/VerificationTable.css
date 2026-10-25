@@ -1,0 +1,54 @@
+/*
+ * Column sizing for the Handyman Verification table.
+ *
+ * This lives in its own file rather than in HandymanVerification.css because
+ * that file is imported by nothing — it is dead CSS, and importing it now would
+ * also pull in its .pagination, .button and .actions rules, which collide with
+ * Bootstrap's own classes used elsewhere on the page.
+ *
+ * Without minimum widths the browser gives the Address column a few dozen
+ * pixels and breaks it after every comma, which is what made the rows six
+ * lines tall. Give the text columns room and let the table scroll sideways
+ * inside .table-responsive instead of stretching the page.
+ */
+
+.verification-table-wrap table {
+  min-width: 1100px;
+}
+
+.verification-table-wrap th,
+.verification-table-wrap td {
+  vertical-align: middle;
+}
+
+/* Address */
+.verification-table-wrap th:nth-child(4),
+.verification-table-wrap td:nth-child(4) {
+  min-width: 210px;
+}
+
+/* Identity Card — long generated filenames */
+.verification-table-wrap th:nth-child(5),
+.verification-table-wrap td:nth-child(5) {
+  min-width: 240px;
+  max-width: 320px;
+  overflow-wrap: anywhere;
+}
+
+/* NID */
+.verification-table-wrap th:nth-child(6),
+.verification-table-wrap td:nth-child(6) {
+  min-width: 140px;
+}
+
+/* Name, Status, Submission Date and Actions stay on one line */
+.verification-table-wrap th:nth-child(2),
+.verification-table-wrap td:nth-child(2),
+.verification-table-wrap th:nth-child(7),
+.verification-table-wrap td:nth-child(7),
+.verification-table-wrap th:nth-child(8),
+.verification-table-wrap td:nth-child(8),
+.verification-table-wrap th:nth-child(9),
+.verification-table-wrap td:nth-child(9) {
+  white-space: nowrap;
+}

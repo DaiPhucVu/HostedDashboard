@@ -1,5 +1,5 @@
 // TODO: Add a pop up modal delete or edit
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Table,
   Button,
@@ -23,11 +23,10 @@ import ConfirmModal from "../components/ConfirmModal";
 
 
 
-const roleOptions = ["Master Admin", "Staff Member"];
+const roleOptions = ["Admin", "Staff"];
 const statusOptions = ["active", "inactive"];
 
 function AdminSettings() {
-  const [admins, setAdmins] = useState([]);
   const [filteredAdmins, setFilteredAdmins] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState(null);
@@ -47,7 +46,34 @@ const [showConfirmModal, setShowConfirmModal] = useState(false);
 const [confirmAction, setConfirmAction] = useState(() => {});
 const [confirmMessage, setConfirmMessage] = useState("");
 const [isProcessing, setIsProcessing] = useState(false);
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("currentUser"));
+    } catch {
+      return null;
+    }
+  })();
+
+  const applyFilters = useCallback((data) => {
+    let result = data;
+    if (searchTerm) {
+      result = result.filter(
+        (admin) =>
+          admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          `${admin.firstName} ${admin.lastName}`
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          admin.role.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    if (filterRole) {
+      result = result.filter((admin) => admin.role?.toLowerCase() === filterRole.toLowerCase());
+    }
+    if (filterStatus) {
+      result = result.filter((admin) => admin.status === filterStatus);
+    }
+    setFilteredAdmins(result);
+  }, [filterRole, filterStatus, searchTerm]);
 
   useEffect(() => {
     const adminRef = ref(database, "admin");
@@ -58,10 +84,9 @@ const [isProcessing, setIsProcessing] = useState(false);
             .filter(([key]) => key !== "test")
             .map(([id, admin]) => ({ id, ...admin }))
         : [];
-      setAdmins(adminArray);
       applyFilters(adminArray);
     });
-  }, [filterRole, filterStatus, searchTerm]);
+  }, [applyFilters]);
 
   const showNotification = (message, variant = "success") => {
     setNotification({ show: true, message, variant });
@@ -73,7 +98,9 @@ const [isProcessing, setIsProcessing] = useState(false);
 
   const handleEdit = (admin) => {
     setIsNewAdmin(false);
-    setSelectedAdmin({ ...admin, lastUpdated: new Date().toISOString() });
+    const lower = (admin.role || "").toLowerCase();
+    const normalizedRole = lower.includes("staff") ? "Staff" : "Admin";
+    setSelectedAdmin({ ...admin, role: normalizedRole, lastUpdated: new Date().toISOString() });
     setShowModal(true);
   };
 
@@ -84,7 +111,7 @@ const [isProcessing, setIsProcessing] = useState(false);
       firstName: "",
       lastName: "",
       email: "",
-      role: "Staff Member",
+      role: "Staff",
       status: "active",
       password: "",
       dateCreated: timestamp,
@@ -163,27 +190,6 @@ const [isProcessing, setIsProcessing] = useState(false);
     setSelectedAdmin((prev) => ({ ...prev, [name]: value }));
   };
 
-  const applyFilters = (data) => {
-    let result = data;
-    if (searchTerm) {
-      result = result.filter(
-        (admin) =>
-          admin.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          `${admin.firstName} ${admin.lastName}`
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          admin.role.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    if (filterRole) {
-      result = result.filter((admin) => admin.role === filterRole);
-    }
-    if (filterStatus) {
-      result = result.filter((admin) => admin.status === filterStatus);
-    }
-    setFilteredAdmins(result);
-  };
-
   return (
     <div className="container mt-4">
       <StickyHeader currentUser={currentUser} pageTitle="Admin Settings" />
@@ -203,7 +209,7 @@ const [isProcessing, setIsProcessing] = useState(false);
           )}
         </div>
       </Fade>
-      {currentUser?.role === "Master Admin" ? (
+      {currentUser?.role?.toLowerCase() === "admin" ? (
         <div className="mt-4">
           <Row className="mb-4 align-items-center">
             <Col md={4} className="d-flex align-items-center">
@@ -287,7 +293,7 @@ const [isProcessing, setIsProcessing] = useState(false);
                   <td>{admin.email}</td>
                   <td>
                     <Badge
-                      bg={admin.role === "Master Admin" ? "danger" : "info"}
+                      bg={admin.role?.toLowerCase() === "admin" ? "danger" : "info"}
                     >
                       {admin.role}
                     </Badge>
@@ -464,7 +470,7 @@ const [isProcessing, setIsProcessing] = useState(false);
         </div>
       ) : (
         <p className="text-danger mt-3">
-          Access Denied. Only Master Admins can view this page.
+          Access Denied. Only Admins can view this page.
         </p>
       )}
       <ConfirmModal

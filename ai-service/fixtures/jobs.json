@@ -1,0 +1,106 @@
+[
+  {
+    "input": {"jobId": "job-en-plumbing", "description": "The kitchen pipe is leaking under the sink and needs a plumber", "languageHint": "en", "locationText": "Dhanmondi, Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-01T10:00:00+06:00", "endAt": "2026-09-01T12:00:00+06:00", "budgetMin": 800, "budgetMax": 1800},
+    "expected": {"categoryId": "plumbing", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-plumbing"], "topProviderIds": ["provider-plumbing-a", "provider-plumbing-new"]}
+  },
+  {
+    "input": {"jobId": "job-bn-plumbing", "description": "রান্নাঘরের পাইপ থেকে পানি লিক হচ্ছে, প্লাম্বিং মেরামত দরকার", "languageHint": "bn", "locationText": "ধানমন্ডি, ঢাকা", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-02T09:00:00+06:00"},
+    "expected": {"categoryId": "plumbing", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-plumbing"], "topProviderIds": ["provider-plumbing-a", "provider-plumbing-new"]}
+  },
+  {
+    "input": {"jobId": "job-mixed-plumbing", "description": "Bathroom e pani leak, pipe repair korte hobe", "languageHint": "mixed", "locationText": "Dhanmondi", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-03T14:00:00+06:00"},
+    "expected": {"categoryId": "plumbing", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-plumbing"], "topProviderIds": ["provider-plumbing-a", "provider-plumbing-new"]}
+  },
+  {
+    "input": {"jobId": "job-en-electrical-critical", "description": "There is smoke and sparking from an electrical socket", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-01T08:00:00+06:00"},
+    "expected": {"categoryId": "electrical", "urgency": "CRITICAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-electrical"], "topProviderIds": ["provider-electrical-a"]}
+  },
+  {
+    "input": {"jobId": "job-bn-electrical", "description": "ঘরের সকেট ও তার ঠিক করতে একজন ইলেকট্রিক মিস্ত্রি দরকার", "languageHint": "bn", "locationText": "ঢাকা", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-05T11:00:00+06:00"},
+    "expected": {"categoryId": "electrical", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-electrical"], "topProviderIds": ["provider-electrical-a"]}
+  },
+  {
+    "input": {"jobId": "job-mixed-electrical-high", "description": "Basha te current nai and socket e sparking hocche", "languageHint": "mixed", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-01T08:00:00+06:00"},
+    "expected": {"categoryId": "electrical", "urgency": "HIGH", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-electrical"], "topProviderIds": ["provider-electrical-a"]}
+  },
+  {
+    "input": {"jobId": "job-en-cleaning", "description": "Need a deep cleaning service for a two-bedroom apartment", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-06T09:00:00+06:00"},
+    "expected": {"categoryId": "cleaning", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-cleaning"], "topProviderIds": ["provider-cleaning-a"]}
+  },
+  {
+    "input": {"jobId": "job-bn-cleaning-incomplete", "description": "বাসা পরিষ্কার করতে হবে", "languageHint": "bn", "locationText": "ঢাকা", "latitude": 23.7806, "longitude": 90.4070},
+    "expected": {"categoryId": "cleaning", "urgency": "NORMAL", "status": "NEEDS_INFO", "missingFields": ["schedule"], "evidenceDocIds": ["policy-cleaning"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-bn-appliance", "description": "ফ্রিজ ঠান্ডা হচ্ছে না, একজন মেরামতের লোক দরকার", "languageHint": "bn", "locationText": "ঢাকা", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-07T16:00:00+06:00"},
+    "expected": {"categoryId": "appliance_repair", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-appliance"], "topProviderIds": ["provider-appliance-a"]}
+  },
+  {
+    "input": {"jobId": "job-vague-appliance-category", "description": "repair", "categoryHint": "appliance_repair", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-07T16:00:00+06:00"},
+    "expected": {"categoryId": "appliance_repair", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": ["description"], "evidenceDocIds": [], "topProviderIds": ["provider-appliance-a"]}
+  },
+  {
+    "input": {"jobId": "job-mixed-appliance-incomplete", "description": "fridge thanda na", "languageHint": "mixed"},
+    "expected": {"categoryId": "appliance_repair", "urgency": "NORMAL", "status": "NEEDS_INFO", "missingFields": ["location", "schedule"], "evidenceDocIds": ["policy-appliance"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-painting", "description": "Paint the bedroom walls and repair small patches", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-08T10:00:00+06:00"},
+    "expected": {"categoryId": "painting", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-painting"], "topProviderIds": ["provider-painting-a"]}
+  },
+  {
+    "input": {"jobId": "job-bn-painting", "description": "শোবার ঘরের দেয়াল নতুন করে রং করতে হবে", "languageHint": "bn", "locationText": "ঢাকা", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-09T10:00:00+06:00"},
+    "expected": {"categoryId": "painting", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-painting"], "topProviderIds": ["provider-painting-a"]}
+  },
+  {
+    "input": {"jobId": "job-en-ac-repair", "description": "The air conditioner has stopped cooling and needs AC repair", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "ac_repair", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-ac-repair"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-beauty", "description": "Need a makeup and facial beauty service at home", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "beauty_wellness", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-beauty-wellness"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-shifting", "description": "Need packing and house moving for my furniture", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "shifting", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-shifting"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-mens-care", "description": "Need a barber for a men's haircut and shaving", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "mens_care_salon", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-mens-care-salon"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-health-care", "description": "Need a caregiver for elderly patient care at home", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "health_care", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-health-care"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-electronics", "description": "My laptop needs electronics and gadget repair", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "electronics_repair", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-electronics-repair"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-pest", "description": "Need pest control for cockroaches and rodents", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "pest_control", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-pest-control"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-driver", "description": "Need to hire a personal driver for the day", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "driver_service", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-driver-service"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-car-care", "description": "Need a car wash and vehicle service", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "car_care", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-car-care"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-travel", "description": "Need travel planning and a tour guide", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "trips_travel", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-trips-travel"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-car-rental", "description": "I want to rent a car for two days", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "car_rental", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-car-rental"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-en-emergency", "description": "Need immediate emergency help at home", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": "emergency_service", "urgency": "NORMAL", "status": "READY_FOR_ASSIGNMENT", "missingFields": [], "evidenceDocIds": ["policy-emergency-service"], "topProviderIds": []}
+  },
+  {
+    "input": {"jobId": "job-unknown", "description": "Something at home is not working properly and I need help", "languageHint": "en", "locationText": "Dhaka", "latitude": 23.7806, "longitude": 90.4070, "startAt": "2026-09-10T10:00:00+06:00"},
+    "expected": {"categoryId": null, "urgency": "NORMAL", "status": "MANUAL_REVIEW", "missingFields": [], "evidenceDocIds": [], "topProviderIds": []}
+  }
+]

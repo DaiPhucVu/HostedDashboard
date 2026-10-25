@@ -1,6 +1,17 @@
 .sidebar {
+  flex: 0 0 250px;
   width: 250px;
+  min-width: 250px;
+  height: 100vh;
+  max-height: 100vh;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  overflow-y: auto;
   background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .nav-link {
@@ -14,15 +25,6 @@
 .nav-link.active {
   background-color: #007bff;
   color: white;
-}
-
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100vh;
-  overflow-y: auto;
-  position: relative;
 }
 
 .sidebar-footer {

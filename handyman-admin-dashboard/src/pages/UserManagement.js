@@ -36,7 +36,13 @@ function UserManagement() {
   const [confirmMessage, setConfirmMessage] = useState("");
   const [confirmAction, setConfirmAction] = useState(() => {});
   const [isProcessing, setIsProcessing] = useState(false);
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("currentUser"));
+    } catch {
+      return null;
+    }
+  })();
 
   const fieldSections = {
     "Personal Info": ["firstName", "lastName", "gender", "birthdate"],
